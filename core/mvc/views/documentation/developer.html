@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="utf-8" />
+        <title>Documentation Pizzygo API</title>
+        <link rel="icon" href="/public/img/logo_pizzygo.png" />
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" href="/public/libs/materialize/css/materialize.min.css" />
+        <script src="https://code.jquery.com/jquery-3.3.1.js"
+                    integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+                    crossorigin="anonymous"></script>
+        <script src="/public/libs/materialize/js/materialize.min.js"></script>
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/ocean.min.css">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>
+            $(window).ready(() => {
+                let valid_form = (http_verb, class_data, url) => {
+                        let inputs = $('.' + class_data);
+                        let data = {};
+                        inputs.each((key, input) => {
+                            let field = $(input).attr('placeholder');
+                            data[field] = $(input).val();
+                        });
+                        data.debug = true;
+                        $.ajax({
+                            beforeSend: () => {
+                                $('#write_json_response' + class_data)
+                                    .append('<div class="col s4 offset-s4">' +
+                                        '<img id="loader_' + class_data + '" src="/public/img/loader.gif" alt="loading..." />' +
+                                        '</div');
+                            },
+                            url: url,
+                            method: http_verb,
+                            data: data
+                        }).done((data, textStatus, response) => {
+                            $('#loader_' + class_data).remove();
+                            $('.http-code-write_json_response' + class_data).html(response.status).addClass('new badge green white-text');
+                            $('.write_json_response' + class_data).html(JSON.stringify(data, null, "  "));
+                            hljs.highlightBlock(document.querySelector('.write_json_response' + class_data));
+                        }).fail(response => {
+                            $('#loader_' + class_data).remove();
+                            let data = response.responseJSON;
+                            $('.http-code-write_json_response' + class_data).html(response.status).addClass('new badge red white-text');
+                            $('.write_json_response' + class_data).html(JSON.stringify(data, null, "  "));
+                            hljs.highlightBlock(document.querySelector('.write_json_response' + class_data));
+                        });
+                    };
+                let resize_urls = () => {
+                        $('.api_url').css('max-width', $(document).width() + 50 + 'px').css('overflow', 'auto');
+                    };
+                let init_change_page = () => {
+                        $('.sections .page').each((key, elem) => {
+                            let id = $(elem).attr('id');
+                            $(elem).css('display', 'none');
+                            let onglet = $('#controllers a[href="#' + id + '"]').parent();
+                            if (onglet.hasClass('active')) {
+                                $(elem).css('display', 'block');
+                            }
+                        })
+                    };
+                let change_page = (parent) => {
+                        $('#controllers li').each((key, elem) => {
+                            $(elem).removeClass('active');
+                        });
+                        parent.addClass('active');
+                        init_change_page();
+                    };
+
+                init_change_page();
+
+                $('input[type=button]').on('click', elem => {
+                        valid_form($(elem.target).data('http_verb'), $(elem.target).data('class'), $(elem.target).data('url'));
+                    });
+
+                $('a.page-changer').on('click', elem => {
+                    elem.preventDefault();
+                    $.ajax({
+                            url: '/api/index.php/documentation/change_page',
+                            data: {
+                                page_id: $(elem.target).attr('href').replace('#', '')
+                            }
+                        });
+                    change_page($(elem.target).parent());
+                });
+
+                resize_urls();
+                $(window).resize(resize_urls);
+                $('.sidenav').sidenav();
+            });
+        </script>
+    </head>
+    <body>
+        <nav>
+            <div class="nav-wrapper orange">
+                <a href="#" data-target="controllers"  class="brand-logo sidenav-trigger show-on-medium-and-up show-on-medium-and-down" >
+                    <img src="/public/img/logo_pizzygo.png" style="padding-left: 10px;height: 65px;" alt="logo" />
+                </a>
+                <a href="#" data-target="menu-sidenav" class="sidenav-trigger">
+                    <i class="material-icons">menu</i>
+                </a>
+                <ul id="nav-mobile" class="right hide-on-med-and-down">
+                    <li class="active"><a href="/api/index.php/documentation/developer">Développeur</a></li>
+                    <li><a href="/api/index.php/documentation/user">Utilisateur</a></li>
+                    <li><a href="/api/index.php/documentation/disconnect">Déconnection</a></li>
+                </ul>
+                <ul class="sidenav" id="menu-sidenav">
+                    <li class="active">
+                        <a href="/api/index.php/documentation/developer">Développeur</a>
+                    </li>
+                    <li>
+                        <a href="/api/index.php/documentation/user">Utilisateur</a>
+                    </li>
+                    <li>
+                        <a href="/api/index.php/documentation/disconnect">Déconnection</a>
+                    </li>
+                </ul>
+                <ul class="sidenav" id="controllers">
+                    {{sidenav_controllers}}
+                </ul>
+            </div>
+        </nav>
+        <header>
+            <div class="container">
+                <div class="row">
+                    <div class="col s12 center-align">
+                        <h1 class="title" style="font-size: 45px;">
+                            Documentation Pizzygo API
+                        </h1>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <main>
+            <div class="container sections">
+                {{sections}}
+            </div>
+        </main>
+    </body>
+</html>

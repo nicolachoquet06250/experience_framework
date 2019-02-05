@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8" />
+    <title> User Documentation Pizzygo API </title>
+    <link rel="icon" href="/public/img/logo_pizzygo.png" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="/public/libs/materialize/css/materialize.min.css" />
+    <script src="https://code.jquery.com/jquery-3.3.1.js"
+            integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+            crossorigin="anonymous"></script>
+    <script src="/public/libs/materialize/js/materialize.min.js"></script>
+    <script>
+        $(window).ready(() => {
+            $('.sidenav').sidenav();
+        });
+    </script>
+</head>
+<body>
+<nav>
+    <div class="nav-wrapper orange">
+        <a href="#" class="brand-logo">
+            <img src="/public/img/logo_pizzygo.png" style="padding-left: 10px;height: 65px;" alt="logo" />
+        </a>
+        <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href="/api/index.php/documentation/developer">Développeur</a></li>
+            <li class="active"><a href="/api/index.php/documentation/user">Utilisateur</a></li>
+        </ul>
+        <ul class="sidenav" id="mobile-demo">
+            <li><a href="/api/index.php/documentation/developer">Développeur</a></li>
+            <li class="active"><a href="/api/index.php/documentation/user">Utilisateur</a></li>
+        </ul>
+    </div>
+</nav>
+</body>
+</html>

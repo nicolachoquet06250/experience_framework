@@ -1,0 +1,22 @@
+{
+  "root_directory": "custom",
+  "git": {
+    "repository": "https://github.com/nicolachoquet06250/pizzygo_api_custom.git",
+    "directory": "custom"
+  },
+  "mvc": {
+    "models": "mvc/models",
+    "views": "mvc/views",
+    "controllers": "mvc/controllers"
+  },
+  "services": "services",
+  "confs": "conf",
+  "entities": "repository/entities",
+  "dao": "repository/dao",
+  "responses_class": "responses",
+  "uploads": {
+    "site_images": "uploads/site",
+    "profil_image": "uploads/profil",
+    "loaders": "uploads/loaders"
+  }
+}

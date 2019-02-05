@@ -1,0 +1,14 @@
+{
+  "name": "nicolas/api",
+  "description": "webservice de l'application Pizzygo",
+  "require": {
+    "phpmailer/phpmailer": "^6.0",
+    "spipu/html2pdf": "5.2.1"
+  },
+  "authors": [
+    {
+      "name": "nicolas.choquet",
+      "email": "nicolachoquet06250@gmail.com"
+    }
+  ]
+}
