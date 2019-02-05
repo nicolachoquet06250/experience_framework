@@ -13,6 +13,13 @@ class Setup extends Base implements ISetup {
 	 */
 	public function __construct($controller) {
 		// Si la classe existe
+		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		if(is_file($external_confs->get_controllers_dir().'/'.ucfirst($controller).'Controller.php')) {
+			require_once $external_confs->get_controllers_dir().'/'.ucfirst($controller).'Controller.php';
+		}
+		elseif(is_file($external_confs->get_controllers_dir(false).'/'.ucfirst($controller).'Controller.php')) {
+			require_once $external_confs->get_controllers_dir(false).'/'.ucfirst($controller).'Controller.php';
+		}
 		if(class_exists(ucfirst($controller).'Controller')) {
 			// Je valorise ma propriété avec le paramètre
 		 	$this->controller = $controller;
@@ -40,6 +47,7 @@ class Setup extends Base implements ISetup {
 		}
 		unset($_GET['controller']);
 		$parzms = $_GET;
+
 		/** @var Controller $ctrl */
 		$ctrl = new $controller($action, $parzms);
 		$run = $ctrl->run();

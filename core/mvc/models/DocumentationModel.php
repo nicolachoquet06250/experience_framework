@@ -138,6 +138,7 @@ HTML;
 		 * @throws Exception
 		 */
 		private function generate_routes() {
+			$external_confs = new External_confs(__DIR__.'/../../../external_confs/custom.json');
 			/** @var OsService $service_os */
 			$service_os = $this->get_service('os');
 			$retour = $service_os->get_chariot_return();
@@ -145,8 +146,115 @@ HTML;
 			foreach ($this->get_controllers() as $controller) {
 				$class = $controller;
 				$controller = ucfirst($controller).'Controller';
-				if(is_file(__DIR__.'/../controllers/'.$controller.'.php')) {
-					require_once __DIR__.'/../controllers/'.$controller.'.php';
+				if(is_file($external_confs->get_controllers_dir().'/'.$controller.'.php')) {
+					require_once $external_confs->get_controllers_dir().'/'.$controller.'.php';
+					$ref     = new ReflectionClass($controller);
+					$class_doc = $ref->getDocComment();
+					$class_doc = str_replace('/**'.$retour, '', $class_doc);
+					$class_doc = str_replace("\t", '', $class_doc);
+					$class_doc = str_replace('*', '', $class_doc);
+					$class_doc = str_replace($retour." */", '', $class_doc);
+					$class_doc = str_replace("$retour*/", '', $class_doc);
+					$class_doc = explode($retour, $class_doc);
+					$class_in_doc = true;
+					$request = true;
+					foreach ($class_doc as $line) {
+						preg_match('`@not_in_doc`', $line, $matches);
+						if(!empty($matches)) {
+							$class_in_doc = false;
+							continue;
+						}
+
+						preg_match('`@not_request`', $line, $matches);
+						if(!empty($matches)) {
+							$request = false;
+							continue;
+						}
+					}
+					if(!$class_in_doc) {
+						continue;
+					}
+
+					$methods = $ref->getMethods();
+					foreach ($methods as $method) {
+						if ($method->getName() !== $class && $method->isPublic() && $method->class !== Controller::class && $method->class !== Base::class) {
+							$params = [];
+							$alias = null;
+							$http_verb = 'GET';
+							$title = '';
+							$describe = '';
+							$not_in_doc = false;
+							$doc = $method->getDocComment();
+							$doc = str_replace('/**'.$retour, '', $doc);
+							$doc = str_replace($retour."\t */", '', $doc);
+							$doc = str_replace($retour."\t\t */", '', $doc);
+							$doc = explode($retour, $doc);
+							foreach ($doc as $line) {
+								preg_match('`@param ([a-z]+) \$([A-Za-z0-9\_]+)`', $line, $matches);
+								if(!empty($matches)) {
+									$params[$matches[2]] = $matches[1];
+								}
+								preg_match('`@alias_method ([a-zA-Z\_]+)`', $line, $matches);
+								if(!empty($matches)) {
+									$alias = $matches[1];
+									continue;
+								}
+								preg_match('`@http_verb ([a-zA-Z]+)`', $line, $matches);
+								if(!empty($matches)) {
+									$http_verb = strtoupper($matches[1]);
+									continue;
+								}
+								preg_match('`@not_in_doc`', $line, $matches);
+								if(!empty($matches)) {
+									$not_in_doc = true;
+									continue;
+								}
+
+								preg_match('`@title ([^\r\n\@]+)`', $line, $matches);
+								if(!empty($matches)) {
+									$title = $matches[1];
+									continue;
+								}
+
+								preg_match('`@not_request`', $line, $matches);
+								if(!empty($matches)) {
+									$method_request = false;
+									continue;
+								}
+
+								preg_match('`@describe ([^\@]+)`', $line, $matches);
+								if(!empty($matches)) {
+									$describe = $matches[1];
+									continue;
+								}
+
+								if(!strstr($line, '@')) {
+									$describe .= $service_os->get_chariot_return().$line;
+								}
+							}
+
+							$infos = [
+								'alias' => $alias,
+								'params' => $params,
+								'http_verb' => $http_verb,
+								'in_doc' => !$not_in_doc,
+								'title' => $title,
+								'describe' => $describe,
+								'request' => (isset($method_request) ? $method_request : $request),
+							];
+
+							$controller = strtolower(str_replace('Controller', '', $controller));
+							if ($method->getName() === 'index') {
+								$routes[$controller]['/'.$class] = $infos;
+							}
+							else {
+								$routes[$controller]['/'.$class.'/'.$method->getName()] = $infos;
+							}
+						}
+					}
+				}
+				elseif(is_file($external_confs->get_controllers_dir(false).'/'.$controller.'.php')) {
+					require_once $external_confs->get_controllers_dir(false).'/'.$controller.'.php';
 					$ref     = new ReflectionClass($controller);
 					$class_doc = $ref->getDocComment();
 					$class_doc = str_replace('/**'.$retour, '', $class_doc);

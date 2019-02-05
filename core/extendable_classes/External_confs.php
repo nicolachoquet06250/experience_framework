@@ -23,8 +23,35 @@ class External_confs {
 	 * @throws Exception
 	 */
 	public function __construct($path) {
+		$file = explode('/', $path)[count(explode('/', $path))-1];
+		$dir = str_replace('/'.$file, '', $path);
 		if(!is_file($path)) {
-			throw new Exception($path.' path not found !');
+			if(!is_dir($dir)) {
+				mkdir($dir, 0777, true);
+			}
+			file_put_contents($path, '{
+  "root_directory": "custom",
+  "git": {
+    "repository": "",
+    "directory": "custom"
+  },
+  "mvc": {
+    "models": "mvc/models",
+    "views": "mvc/views",
+    "controllers": "mvc/controllers"
+  },
+  "services": "services",
+  "confs": "conf",
+  "entities": "repository/entities",
+  "dao": "repository/dao",
+  "responses_class": "responses",
+  "uploads": {
+    "site_images": "uploads/site",
+    "profil_image": "uploads/profil",
+    "loaders": "uploads/loaders"
+  }
+}
+');
 		}
 		$this->conf = json_decode(file_get_contents($path), true);
 	}
@@ -60,7 +87,7 @@ class External_confs {
 		return realpath($this->get_root_dir($custom).'/'.(isset($this->conf['mvc']['views']) ? $this->conf['mvc']['views'] : self::$DEFAULT_VIEWS)).$this->get_interface_dir($interface);
 	}
 
-	public function get_confs_dir($custom = true, $interface = false) {
+	public function get_conf_dir($custom = true, $interface = false) {
 		return realpath($this->get_root_dir($custom).'/'.(isset($this->conf['confs']) ? $this->conf['confs'] : self::$DEFAULT_CONFS)).$this->get_interface_dir($interface);
 	}
 

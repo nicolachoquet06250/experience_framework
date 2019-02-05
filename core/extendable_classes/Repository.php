@@ -13,6 +13,7 @@ class Repository extends Base implements IRepository {
 	 * @throws Exception
 	 */
 	public function __construct() {
+		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
 		$this->entity_class = get_class($this);
 		$this->entity_class = explode("\\", $this->entity_class)[count(explode("\\", $this->entity_class))-1];
 		$this->entity_class = str_replace(
@@ -21,7 +22,7 @@ class Repository extends Base implements IRepository {
 				'Dao'
 			], 'Entity', $this->entity_class);
 		$this->table_name = strtolower(str_replace('Entity', '', $this->entity_class));
-		require_once __DIR__.'/../entities/'.$this->entity_class.'.php';
+		require_once $external_confs->get_entities_dir().'/'.$this->entity_class.'.php';
 		/** @var MysqlService $mysql_service */
 		$this->mysql_conf = $this->get_conf('mysql');
 		$mysql_service = $this->get_service('mysql');

@@ -147,16 +147,16 @@ class Base implements IBase {
 	public function get_conf(string $conf) {
 		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
 		$conf = ucfirst($conf).'Conf';
-		if(file_exists($external_conf->get_confs_dir().'/'.$conf.'.php')) {
+		if(file_exists($external_conf->get_conf_dir().'/'.$conf.'.php')) {
 			if(!isset(self::$confs[$conf])) {
-				require_once $external_conf->get_confs_dir().'/'.$conf.'.php';
+				require_once $external_conf->get_conf_dir().'/'.$conf.'.php';
 				self::$confs[$conf] = new $conf();
 			}
 			return self::$confs[$conf];
 		}
-		elseif(file_exists($external_conf->get_confs_dir(false).'/'.$conf.'.php')) {
+		elseif(file_exists($external_conf->get_conf_dir(false).'/'.$conf.'.php')) {
 			if(!isset(self::$confs[$conf])) {
-				require_once $external_conf->get_confs_dir(false).'/'.$conf.'.php';
+				require_once $external_conf->get_conf_dir(false).'/'.$conf.'.php';
 				self::$confs[$conf] = new $conf();
 			}
 			return self::$confs[$conf];
