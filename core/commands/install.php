@@ -438,9 +438,25 @@ class install extends cmd {
 			throw new Exception('Veuillez créer un fichier de configuration custom.json. Pour celà, lancez la commande `php builder.php make:custom_conf`');
 		}
 		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
-		exec($git_service->git_path().' clone '.$external_conf->get_git_repo()['repository'].' '.__DIR__.'/../../'.$external_conf->get_git_repo()['directory']);
+		if(!is_dir(__DIR__.'/../../'.$external_conf->get_git_repo()['directory'])) {
+			echo 'Installation du repository git `'.$external_conf->get_git_repo()['repository'].'`'."\n";
+			exec($git_service->git_path().' clone '.$external_conf->get_git_repo()['repository'].' '.__DIR__.'/../../'.$external_conf->get_git_repo()['directory']);
+		}
+		else {
+			echo 'Mise à jour du repository git `'.$external_conf->get_git_repo()['directory'].'`'."\n";
+			exec('cd '.__DIR__.'/../../'.$external_conf->get_git_repo()['directory'].' && '.$git_service->git_path().' pull', $output);
+			echo implode("\n", $output)."\n";
+		}
 		foreach ($dependencies->get_all() as $dir => $dependency) {
-			exec($git_service->git_path().' clone '.$dependency.' '.__DIR__.'/../../git_dependencies/'.$dir);
+			if(!is_dir(__DIR__.'/../../git_dependencies/'.$dir)) {
+				echo 'Installation du repository git `'.$dir.'`'."\n";
+				exec($git_service->git_path().' clone '.$dependency.' '.__DIR__.'/../../git_dependencies/'.$dir);
+			}
+			else {
+				echo 'Mise à jour du repository git `'.$dir.'`'."\n";
+				exec('cd '.__DIR__.'/../../git_dependencies/'.$dir.' && '.$git_service->git_path().' pull', $output);
+				echo implode("\n", $output)."\n";
+			}
 		}
 	}
 }

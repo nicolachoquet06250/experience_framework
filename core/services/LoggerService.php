@@ -24,16 +24,6 @@
 				var_dump($message, 'Je suis dans la console');
 			};
 
-			$this->logger_callbacks[self::FILE] = function ($message) {
-				$this->logs[self::FILE][] = $message;
-				var_dump($message, 'Je suis dans le fichier '.$this->logs_path.'/'.$this->log_file.'.log');
-			};
-
-			$this->logger_callbacks[self::MAIL] = function ($message) {
-				$this->logs[self::MAIL][] = $message;
-				var_dump($message, 'Je suis dans un email');
-			};
-
 			$this->logger_callbacks[self::MAIL.'_send'] = function ($message) {
 				var_dump($message, 'J\'envoie un email');
 			};
@@ -141,7 +131,12 @@
 		 * @param string $msg
 		 */
 		protected function add_log($logger, $msg) {
-			$this->logger_callbacks[$logger]($msg);
+			if(isset($this->logger_callbacks[$logger.'_send'])) {
+				$this->logs[$logger][] = $msg;
+			}
+			if(!is_null($this->logger_callbacks[$logger])) {
+				$this->logger_callbacks[$logger]($msg);
+			}
 		}
 
 		/**
@@ -191,7 +186,7 @@
 		public function send() {
 			foreach ($this->logs as $logger => $logs) {
 				foreach ($logs as $log) {
-					if(isset($this->logger_callbacks[$logger.'_send'])) {
+					if(in_array($logger.'_send', array_keys($this->logger_callbacks))) {
 						$this->logger_callbacks[$logger.'_send']($log);
 					}
 				}

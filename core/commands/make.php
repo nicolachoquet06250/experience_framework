@@ -6,19 +6,21 @@ use mvc_framework\core\queues\traits\Queue;
 
 class make extends cmd {
 
-	public function __construct($args) {
-		parent::__construct($args);
-		Queue::$NAMESPACE = '\\';
-		Queue::$RECEIVERS_PATH = __DIR__.'/../queues/receivers';
-		Queue::$SENDERS_PATH = __DIR__.'/../queues/senders';
-		Queue::$ELEMENTS_PATH = __DIR__.'/../queues/elements';
-		Queue::$QUEUES_PATH = __DIR__.'/../queues/queues';
+	private static function init_queues() {
+		if(ClassFinder::exists(Queue::class)) {
+			Queue::$NAMESPACE      = '\\';
+			Queue::$RECEIVERS_PATH = __DIR__.'/../queues/receivers';
+			Queue::$SENDERS_PATH   = __DIR__.'/../queues/senders';
+			Queue::$ELEMENTS_PATH  = __DIR__.'/../queues/elements';
+			Queue::$QUEUES_PATH    = __DIR__.'/../queues/queues';
+		}
 	}
 
 	/**
 	 * @throws Exception
 	 */
 	public function send_in_queue() {
+		self::init_queues();
 		/** @var QueueSender $queue_email_sender */
 		$queue_email_sender = $this->queues_loader()->get_service_queue_sender()->get_queue('email');
 		$queue_email_sender->enqueue(
@@ -35,26 +37,34 @@ class make extends cmd {
 	 * @throws Exception
 	 */
 	public function start_queue() {
+		self::init_queues();
 		/** @var QueueReceiver $queue_email_receiver */
 		$queue_email_receiver = $this->queues_loader()->get_service_queue_receiver()->get_queue('email');
 		$queue_email_receiver->run();
 	}
 
 	/**
-	 * @param LoggerService $loggerService
 	 * @throws ReflectionException
 	 */
 	public function test(LoggerService $loggerService) {
-		$loggerService->add_constant('TEST', 4);
-		$loggerService->logger_callback('TEST', function ($message) {
-			var_dump($message);
-			var_dump('je suis dans mon logger ajouté');
-		}, function ($message) {
-			var_dump($message);
-			var_dump('j\'envoie dans mon logger ajouté');
-		});
-		$loggerService->add_loggers(LoggerService::CONSOLE, LoggerService::FILE, LoggerService::MAIL, 'TEST');
+		$loggerService->TEST = 'TEST';
+
+		$loggerService->add_constant($loggerService->TEST, 4);
+		$loggerService->logger_callback($loggerService->TEST,
+			function ($message) {
+				var_dump($message);
+				var_dump('je suis dans mon logger ajouté');
+			}, function ($message) {
+				var_dump($message);
+				var_dump('j\'envoie dans mon logger ajouté');
+			}
+		);
+
+		$loggerService->set_log_file('test');
 		$loggerService->set_email_infos('Nicolas Choquet', 'nicolachoquet06250@gmail.com', 'Un objet');
+
+		$loggerService->add_loggers(LoggerService::CONSOLE, LoggerService::FILE, LoggerService::MAIL, 'TEST');
+
 		$loggerService->log('coucou');
 		$loggerService->send();
 	}
