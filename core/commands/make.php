@@ -70,28 +70,14 @@ class make extends cmd {
 	}
 
 	public function custom_conf() {
-		if(!is_dir(__DIR__.'/../../external_conf')) {
-			mkdir(__DIR__.'/../../external_conf');
+		$custom = json_decode(file_get_contents(__DIR__.'/../../external_confs/custom.json'), true);
+		if($this->get_arg('repo') && $this->get_arg('dir')) {
+			$custom['root_directory'] = $this->get_arg('dir');
+			$custom['git'] = [
+				'repository' => $this->get_arg('repo'),
+				'directory' => $this->get_arg('dir'),
+			];
 		}
-		file_put_contents(__DIR__.'/../../external_conf/custom.json', json_encode(
-			[
-				"root_directory" => "custom",
-  				"mvc" => [
-					"models" => "mvc/models",
-					"views" => "mvc/views",
-					"controllers" => "mvc/controllers"
-				],
-				"services" => "services",
-				"confs" => "conf",
-				"entities" => "repository/entities",
-				"dao" => "repository/dao",
-				"responses_class" => "responses",
-				"uploads" => [
-					"site_images" => "uploads/site",
-					"profil_image" => "uploads/profil",
-					"loaders" => "uploads/loaders"
-				]
-			]
-		));
+		file_put_contents(__DIR__.'/../../external_confs/custom.json', json_encode($custom));
 	}
 }
