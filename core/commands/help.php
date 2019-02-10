@@ -1,5 +1,16 @@
 <?php
 
+namespace core;
+
+use custom\Local_storageService;
+use custom\RoleDao;
+use custom\RoleEntity;
+use custom\UserDao;
+use custom\UserEntity;
+use Exception;
+use ReflectionClass;
+use ReflectionException;
+
 class help extends cmd {
 	/**
 	 * @param string $header
@@ -268,13 +279,6 @@ class help extends cmd {
 	/**
 	 * @throws Exception
 	 */
-	public function threads() {
-		($this->get_thread('main'))->start();
-	}
-
-	/**
-	 * @throws Exception
-	 */
 	public function test_user_dao(UserDao $user_dao) {
 		$user = $user_dao->getId_Name_Surname_Email_DescriptionByEmailAndPassword($this->get_arg('email'), sha1(sha1($this->get_arg('password'))));
 		if(is_array($user)) {
@@ -290,5 +294,9 @@ class help extends cmd {
 	 */
 	public function update_structure(UserDao $user_dao) {
 		$user_dao->update_structure();
+	}
+
+	public function test_mkdir(Local_storageService $local_storageService) {
+		$local_storageService->mkdir(__DIR__.'/../../toto');
 	}
 }

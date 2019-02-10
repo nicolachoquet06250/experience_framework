@@ -1,8 +1,14 @@
 <?php
+namespace core;
+
+use custom\CredentialsDao;
+use custom\CredentialsEntity;
+use Exception;
+use PHPMailer\PHPMailer\PHPMailer;
 
 class EmailService extends Service implements IEmailService {
 	private $credentials;
-	/** @var \PHPMailer\PHPMailer\PHPMailer $mailer */
+	/** @var PHPMailer $mailer */
 	private $mailer;
 
 	private $smtp_host = 'smtp.gmail.com';
@@ -27,7 +33,7 @@ class EmailService extends Service implements IEmailService {
 			'email'    => $email_credential->get('login'),
 			'password' => $email_credential->get('password'),
 		];
-		$this->mailer = new PHPMailer\PHPMailer\PHPMailer(true);
+		$this->mailer = new PHPMailer(true);
 		$this->mailer->IsSMTP();
 		$this->mailer->SMTPDebug  = $this->debug;  // debogage: 1 = Erreurs et messages, 2 = messages seulement
 		$this->mailer->SMTPAuth   = $this->auth;  // Authentification SMTP active
@@ -143,7 +149,7 @@ class EmailService extends Service implements IEmailService {
 	}
 
 	/**
-	 * @return \PHPMailer\PHPMailer\PHPMailer
+	 * @return PHPMailer
 	 */
 	public function get_mailer() {
 		return $this->mailer;

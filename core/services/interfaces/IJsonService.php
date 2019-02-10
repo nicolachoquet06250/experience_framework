@@ -1,4 +1,5 @@
 <?php
+namespace core;
 
 interface IJsonService extends IService {
 	public function encode($object);

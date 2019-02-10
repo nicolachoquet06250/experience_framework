@@ -1,4 +1,7 @@
 <?php
+namespace core;
+
+use Exception;
 
 class GitService extends Service {
 	public function initialize_after_injection() {}

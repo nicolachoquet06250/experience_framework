@@ -1,5 +1,9 @@
 <?php
 
+namespace core;
+
+use Exception;
+
 class cmd extends Base implements ICmd {
 	private $args;
 	private $mysql;

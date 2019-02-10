@@ -1,4 +1,8 @@
 <?php
+namespace core;
+
+	use Exception;
+
 	interface IMicro_templatingService extends IService {
 		public function set_path($path);
 

@@ -1,4 +1,7 @@
 <?php
+namespace core;
+
+use Exception;
 
 class HttpService extends Service implements IHttpService {
 	protected $get;
@@ -12,7 +15,24 @@ class HttpService extends Service implements IHttpService {
 	 * @throws Exception
 	 */
 	public function initialize_after_injection() {
-		$this->get = $_GET;
+		if(empty($_GET)) {
+			$get = explode('?', $_SERVER['REQUEST_URI']);
+			if(isset($get[1])) {
+				$get = $get[1];
+				$get = explode('&', $get);
+				foreach ($get as $i => $item) {
+					$get[explode('=', $item)[0]] = explode('=', $item)[1];
+					unset($get[$i]);
+				}
+			}
+			else {
+				$get = [];
+			}
+		}
+		else {
+			$get = $_GET;
+		}
+		$this->get = $get;
 		$this->post = $_POST;
 		$this->files = $_FILES;
 		$this->response_header = isset($http_response_header) ? $http_response_header : null;
@@ -65,11 +85,13 @@ class HttpService extends Service implements IHttpService {
 	 * @throws Exception
 	 */
 	public function session($key = null, $value = null) {
-		if(!is_null($value)) $this->get_service('session')->set($key, $value);
+		/** @var SessionService $session_service */
+		$session_service = $this->get_service('session');
+		if(!is_null($value)) $session_service->set($key, $value);
 		if(is_null($key)) {
 			return $this->session;
 		}
-		return $this->get_service('session')->get($key);
+		return $session_service->get($key);
 	}
 
 	public function server($key = null) {

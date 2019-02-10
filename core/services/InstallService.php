@@ -1,4 +1,7 @@
 <?php
+namespace core;
+
+use Exception;
 
 class InstallService extends Service implements IInstallService {
 	/** @var Conf $mysql_conf */

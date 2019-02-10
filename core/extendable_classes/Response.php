@@ -1,5 +1,7 @@
 <?php
 
+namespace core;
+
 class Response extends Base implements IResponse {
 	protected $element;
 	protected $header_type = self::JSON;
@@ -9,7 +11,7 @@ class Response extends Base implements IResponse {
 	 * @param $element
 	 * @param $type
 	 * @return Response
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function create($element, $type = self::JSON) {
 		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
@@ -17,16 +19,20 @@ class Response extends Base implements IResponse {
 		if(is_file(realpath($external_conf->get_responses_dir().'/'.$response_class.'.php'))) {
 			require_once realpath($external_conf->get_responses_dir().'/'.$response_class.'.php');
 			/** @var Response $response */
+			$namespace = '\\'.$external_conf->get_git_repo()['directory'];
+			$response_class = $namespace.'\\'.$response_class;
 			$response = new $response_class($element);
 			return $response;
 		}
 		elseif(is_file(realpath($external_conf->get_responses_dir(false).'/'.$response_class.'.php'))) {
 			require_once realpath($external_conf->get_responses_dir(false).'/'.$response_class.'.php');
 			/** @var Response $response */
+			$namespace = '\\core';
+			$response_class = $namespace.'\\'.$response_class;
 			$response = new $response_class($element);
 			return $response;
 		}
-		throw new Exception('Nous n\'avons pu créer de réponse !!');
+		throw new \Exception('Nous n\'avons pu créer de réponse !!');
 	}
 
 	public function __construct($element) {
@@ -43,7 +49,7 @@ class Response extends Base implements IResponse {
 	}
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	protected function parse_element() {
 		/** @var JsonService $json_service */
@@ -81,7 +87,7 @@ class Response extends Base implements IResponse {
 
 	/**
 	 * @return mixed
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function display() {
 		$this->parse_element();

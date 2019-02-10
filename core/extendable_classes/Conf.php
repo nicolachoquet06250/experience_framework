@@ -1,5 +1,9 @@
 <?php
 
+namespace core;
+
+use Exception;
+
 class Conf extends Base implements IConf {
 	protected $conf;
 	public function get($key) {

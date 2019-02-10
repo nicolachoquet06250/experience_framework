@@ -1,4 +1,5 @@
 <?php
+namespace core;
 
 interface IHttpService extends IService {
 	public function get($key = null);

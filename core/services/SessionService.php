@@ -1,4 +1,7 @@
 <?php
+namespace core;
+use Exception;
+
 session_start();
 
 class SessionService extends Service implements ISessionService {

@@ -1,4 +1,6 @@
 <?php
+namespace core;
+
 require_once __DIR__.'/IStorageService.php';
 interface ISessionService extends IStorageService {
 	public function name($session_name = null);

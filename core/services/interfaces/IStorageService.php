@@ -1,4 +1,5 @@
 <?php
+namespace core;
 
 interface IStorageService extends IService {
 	public function set(string $key, $value, $domain);

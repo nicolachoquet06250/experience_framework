@@ -1,8 +1,11 @@
 {
-    "name": "nicolas/api",
-    "description": "webservice de l'application Pizzygo",
+    "name": "experience/framework",
+    "description": "framework de construction de webapi avec serveur OAuth2 intégré",
     "require": {
         "phpmailer/phpmailer": "^6.0"
+    },
+    "require-dev": {
+
     },
     "authors": [
         {

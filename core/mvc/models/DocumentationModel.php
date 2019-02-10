@@ -1,5 +1,12 @@
 <?php
 
+namespace core;
+
+	use custom\UserEntity;
+	use Exception;
+	use ReflectionClass;
+	use ReflectionException;
+
 	class DocumentationModel extends BaseModel {
 		private $routes;
 		private $section_template = <<<HTML
@@ -136,6 +143,7 @@ HTML;
 		/**
 		 * @throws ReflectionException
 		 * @throws Exception
+		 * @throws \Exception
 		 */
 		private function generate_routes() {
 			$external_confs = new External_confs(__DIR__.'/../../../external_confs/custom.json');

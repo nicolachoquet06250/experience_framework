@@ -1,4 +1,6 @@
 <?php
+namespace core;
+
 	interface ITokenService extends IService {
-		public function generate_token_for_user(UserEntity $user);
+		public function generate_token_for_user(Entity $entity);
 	}

@@ -1,4 +1,6 @@
 <?php
+namespace core;
+
 	interface ILoggerService extends IService {
 		public function set_email_infos($from_name, $to, $object);
 		public function set_log_file($log_file);

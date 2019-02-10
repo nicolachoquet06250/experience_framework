@@ -1,5 +1,7 @@
 <?php
 
+namespace core;
+
 class HtmlResponse extends Response {
 	protected $header_type = Response::HTML;
 

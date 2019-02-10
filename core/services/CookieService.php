@@ -1,4 +1,5 @@
 <?php
+namespace core;
 
 
 class CookieService extends Service implements ICookieSession {

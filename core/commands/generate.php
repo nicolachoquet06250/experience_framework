@@ -1,5 +1,11 @@
 <?php
 
+namespace core;
+
+use custom\RoleDao;
+use custom\UserDao;
+use Exception;
+
 class generate extends cmd {
 	/** @var OsService $os_service */
 	public $os_service;
@@ -15,6 +21,8 @@ class generate extends cmd {
 		}
 		$name = $this->get_arg('name');
 		$controller = '<?php
+	namespace custom;
+	use core\Controller;
 		
 	class '.ucfirst($name).'Controller extends Controller {
 
@@ -27,6 +35,8 @@ class generate extends cmd {
 	}';
 
 		$model = '<?php
+	namespace custom;
+	use core\BaseModel;
 
 	class '.ucfirst($name).'Model extends BaseModel {}';
 
@@ -56,7 +66,9 @@ class generate extends cmd {
 		}
 		$name = $this->get_arg('name');
 		$command = '<?php
-
+	namespace custom;
+	use core\cmd;
+	
 	class '.$name.' extends cmd {}';
 
 		file_put_contents(__DIR__.'/'.$name.'.php', $command);
@@ -86,10 +98,16 @@ class generate extends cmd {
 		$hand_create = !($hand_create === 'o');
 
 		$dao = '<?php
+	namespace custom;
+	use core\Repository;
+	
 	class '.ucfirst($name).'Dao extends Repository {}';
 
 		if($hand_create) {
 			$entity = '<?php
+	namespace custom;
+	use core\Entity;
+	
 	class '.ucfirst($name).'Entity extends Entity {}';
 		}
 		else {
@@ -136,6 +154,8 @@ class generate extends cmd {
 				$end = $end === 'o';
 			}
 			$entity = '<?php
+	namespace custom;
+	use core\Entity;
 	
 	class '.ucfirst($name).'Entity extends Entity {
 ';
@@ -212,8 +232,13 @@ class generate extends cmd {
 		$name = $this->get_arg('name');
 		$name = ucfirst($name);
 		$interface = '<?php
+	namespace custom;
+	use core\IService;
+	
 	interface I'.$name.'Service extends IService {}';
 		$service = '<?php
+	namespace custom;
+	use core\Service;
 
 	class '.$name.'Service extends Service implements I'.$name.'Service {
 		public function initialize_after_injection() {}

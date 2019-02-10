@@ -1,7 +1,16 @@
 <?php
 
+namespace core;
+
+	use custom\RoleEntity;
+	use custom\UserDao;
+	use custom\UserEntity;
+	use Exception;
+	use ReflectionException;
+
 	/**
 	 * Class DocumentationController
+	 *
 	 * @not_request
 	 */
 	class DocumentationController extends Controller {

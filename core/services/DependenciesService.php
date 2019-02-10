@@ -1,4 +1,7 @@
 <?php
+namespace core;
+
+	use Exception;
 
 	class DependenciesService extends Service implements IDependenciesService {
 		private $git_dependencies = [];

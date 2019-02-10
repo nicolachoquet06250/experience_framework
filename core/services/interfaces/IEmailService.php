@@ -1,4 +1,5 @@
 <?php
+namespace core;
 
 interface IEmailService extends IService {
 	public function set_from_name($name);

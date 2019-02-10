@@ -1,5 +1,10 @@
 <?php
 
+namespace core;
+
+use Exception;
+use mysqli;
+
 class Repository extends Base implements IRepository {
 	private $entity_class;
 	private $mysql;

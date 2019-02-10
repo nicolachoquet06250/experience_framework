@@ -1,5 +1,9 @@
 <?php
 
+namespace core;
+
+use Exception;
+
 class External_confs {
 	private $conf;
 

@@ -1,5 +1,9 @@
 <?php
 
+namespace core;
+
+use Exception;
+
 class Router extends Base implements IRouter {
 	/** @var HttpService $http */
 	private $uri, $http;
@@ -40,6 +44,9 @@ class Router extends Base implements IRouter {
 		return false;
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	private function parse_uri() {
 		if(is_null($this->http->get('controller'))) {
 			$params = explode('?', $this->uri);

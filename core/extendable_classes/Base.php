@@ -1,5 +1,9 @@
 <?php
 
+namespace core;
+
+use Exception;
+
 class Base implements IBase {
 	private static $confs = [];
 
@@ -20,7 +24,7 @@ class Base implements IBase {
 		$controllers = [];
 		while (($elem = readdir($dir)) !== false) {
 			if($elem !== '.' && $elem !== '..') {
-				$controllers[] = strtolower(str_replace('Controller.php', '', $elem));
+				$controllers[] = strtolower(str_replace(['\\'.$external_conf->get_git_repo()['directory'].'\\', 'Controller.php'], '', $elem));
 			}
 		}
 
@@ -28,7 +32,7 @@ class Base implements IBase {
 		$dir = opendir($directory);
 		while (($elem = readdir($dir)) !== false) {
 			if($elem !== '.' && $elem !== '..') {
-				$controllers[] = strtolower(str_replace('Controller.php', '', $elem));
+				$controllers[] = strtolower(str_replace(['\\core\\', 'Controller.php'], '', $elem));
 			}
 		}
 		return $controllers;
@@ -43,11 +47,16 @@ class Base implements IBase {
 		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
 		$model = ucfirst($model).'Model';
 		if(file_exists($external_conf->get_models_dir().'/'.$model.'.php')) {
+			require_once $external_conf->get_models_dir(false).'/'.$model.'.php';
 			require_once $external_conf->get_models_dir().'/'.$model.'.php';
+			$namespace = '\\'.$external_conf->get_git_repo()['directory'];
+			$model = $namespace.'\\'.$model;
 			return new $model();
 		}
 		elseif(file_exists($external_conf->get_models_dir(false).'/'.$model.'.php')) {
 			require_once $external_conf->get_models_dir(false).'/'.$model.'.php';
+			$namespace = '\\core';
+			$model = $namespace.'\\'.$model;
 			return new $model();
 		}
 		else {
@@ -63,10 +72,15 @@ class Base implements IBase {
 	public function get_service(string $service) {
 		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
 		$service = ucfirst($service).'Service';
+
 		if(file_exists($external_conf->get_services_dir().'/'.$service.'.php')) {
+			require_once $external_conf->get_services_dir(false, true).'/I'.$service.'.php';
+			require_once $external_conf->get_services_dir(false).'/'.$service.'.php';
 			require_once $external_conf->get_services_dir(true, true).'/I'.$service.'.php';
 			require_once $external_conf->get_services_dir().'/'.$service.'.php';
+			$namespace = '\\'.$external_conf->get_git_repo()['directory'];
 			/** @var Service $o_service */
+			$service = $namespace.'\\'.$service;
 			$o_service = new $service();
 			$o_service->initialize_after_injection();
 			return $o_service;
@@ -74,7 +88,9 @@ class Base implements IBase {
 		elseif(file_exists($external_conf->get_services_dir(false).'/'.$service.'.php')) {
 			require_once $external_conf->get_services_dir(false, true).'/I'.$service.'.php';
 			require_once $external_conf->get_services_dir(false).'/'.$service.'.php';
+			$namespace = '\\core';
 			/** @var Service $o_service */
+			$service = $namespace.'\\'.$service;
 			$o_service = new $service();
 			$o_service->initialize_after_injection();
 			return $o_service;
@@ -103,6 +119,8 @@ class Base implements IBase {
 		$repository = ucfirst($repository).'Dao';
 		if (file_exists($external_conf->get_dao_dir().'/'.$repository.'.php')) {
 			require_once $external_conf->get_dao_dir().'/'.$repository.'.php';
+			$namespace = '\\'.$external_conf->get_git_repo()['directory'];
+			$repository = $namespace.'\\'.$repository;
 			return new $repository();
 		}
 		throw new Exception('La classe '.$repository.' n\'existe pas !');
@@ -118,6 +136,8 @@ class Base implements IBase {
 		$entity = ucfirst($entity).'Entity';
 		if(file_exists($external_conf->get_entities_dir().'/'.$entity.'.php')) {
 			require_once $external_conf->get_entities_dir().'/'.$entity.'.php';
+			$namespace = '\\'.$external_conf->get_git_repo()['directory'];
+			$entity = $namespace.'\\'.$entity;
 			return new $entity();
 		}
 		throw new Exception('\'La classe '.$entity.' n\'existe pas !');
@@ -133,7 +153,7 @@ class Base implements IBase {
 		$entities = [];
 		while (($elem = readdir($dir)) !== false) {
 			if($elem !== '.' && $elem !== '..') {
-				$entities[] = strtolower(str_replace('Entity.php', '', $elem));
+				$entities[] = strtolower(str_replace(['\\'.$external_conf->get_git_repo()['directory'], 'Entity.php'], '', $elem));
 			}
 		}
 		return $entities;
@@ -147,9 +167,12 @@ class Base implements IBase {
 	public function get_conf(string $conf) {
 		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
 		$conf = ucfirst($conf).'Conf';
+		require_once $external_conf->get_conf_dir(false).'/'.$conf.'.php';
 		if(file_exists($external_conf->get_conf_dir().'/'.$conf.'.php')) {
 			if(!isset(self::$confs[$conf])) {
 				require_once $external_conf->get_conf_dir().'/'.$conf.'.php';
+				$namespace = '\\'.$external_conf->get_git_repo()['directory'];
+				$conf = $namespace.'\\'.$conf;
 				self::$confs[$conf] = new $conf();
 			}
 			return self::$confs[$conf];
@@ -157,6 +180,8 @@ class Base implements IBase {
 		elseif(file_exists($external_conf->get_conf_dir(false).'/'.$conf.'.php')) {
 			if(!isset(self::$confs[$conf])) {
 				require_once $external_conf->get_conf_dir(false).'/'.$conf.'.php';
+				$namespace = '\\core';
+				$conf = $namespace.'\\'.$conf;
 				self::$confs[$conf] = new $conf();
 			}
 			return self::$confs[$conf];

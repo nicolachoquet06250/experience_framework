@@ -1,5 +1,7 @@
 <?php
 
+namespace core;
+
 interface IConf {
 	public function get($key);
 

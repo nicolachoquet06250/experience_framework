@@ -1,5 +1,7 @@
 <?php
 
+namespace core;
+
 interface IBase {
 	public function get_model(string $model);
 	public function get_service(string $service);

@@ -1,5 +1,9 @@
 <?php
 
+namespace core;
+
+use Exception;
+
 class install extends cmd {
 	private $dummy_data = [
 		'address' => [
@@ -363,6 +367,14 @@ class install extends cmd {
 			],
 		],
 	];
+	private $htaccess = "Options +FollowSymlinks
+RewriteEngine On
+
+
+RewriteRule ^([a-zA-Z0-9\_]+)$                            core/index.php?controller=$1 [L]
+RewriteRule ^([a-zA-Z0-9\_]+)/([a-zA-Z0-9\_]+)$           core/index.php?controller=$1&action=$2 [L]
+RewriteRule ^([a-zA-Z0-9\_\/]+\.jpg|jpeg|png|gif|svg)$    core/index.php?image=$1 [L]
+";
 	/**
 	 * @throws Exception
 	 */
@@ -433,7 +445,7 @@ class install extends cmd {
 	/**
 	 * @throws Exception
 	 */
-	public function dependencies(DependenciesConf $dependencies, GitService $git_service) {
+	public function dependencies(\custom\DependenciesConf $dependencies, GitService $git_service, OsService $osService) {
 		if(!is_dir(__DIR__.'/../../external_confs')) {
 			throw new Exception('Veuillez créer un fichier de configuration custom.json. Pour celà, lancez la commande `php builder.php make:custom_conf`');
 		}
@@ -457,6 +469,33 @@ class install extends cmd {
 				exec('cd '.__DIR__.'/../../git_dependencies/'.$dir.' && '.$git_service->git_path().' pull', $output);
 				echo implode("\n", $output)."\n";
 			}
+		}
+		$composer_core = json_decode(file_get_contents(__DIR__.'/../composer.json'), true);
+		if(is_file(__DIR__.'/../../'.$external_conf->get_git_repo()['directory'].'/composer.json')) {
+			$composer_custom = json_decode(file_get_contents(__DIR__.'/../../'.$external_conf->get_git_repo()['directory'].'/composer.json'), true);
+		}
+		else {
+			$composer_custom = [];
+		}
+		$composer['name'] = isset($composer_custom['name']) ? $composer_custom['name'] : $composer_core['name'];
+		$composer['description'] = isset($composer_custom['description']) ? $composer_custom['description'] : $composer_core['description'];
+		$composer['description'] = isset($composer_custom['description']) ? $composer_custom['description'] : $composer_core['description'];
+		$composer['authors'] = isset($composer_custom['authors']) ? array_merge($composer_core['authors'], $composer_custom['authors']) : $composer_core['authors'];
+		$composer['require'] = isset($composer_custom['require']) ? array_merge($composer_core['require'], $composer_custom['require']) : $composer_core['require'];
+		$composer['require-dev'] = isset($composer_custom['require-dev']) ? array_merge($composer_core['require-dev'], $composer_custom['require-dev']) : $composer_core['require-dev'];
+		if(empty($composer['require-dev'])) {
+			unset($composer['require-dev']);
+		}
+		if(!is_file(__DIR__.'/../../composer.json') || (file_get_contents(__DIR__.'/../../composer.json') === json_encode($composer) && is_file(__DIR__.'/../../composer.lock'))) {
+			file_put_contents(__DIR__.'/../../composer.json', json_encode($composer));
+		}
+
+		$command = (is_file(__DIR__.'/../../composer.phar') ? $osService->composer(true) : $osService->composer(false)).' ';
+		$command .= is_file(__DIR__.'/../../composer.lock') ? 'update' : 'install';
+		exec($command);
+
+		if(!is_file(__DIR__.'/../../.htaccess') || file_get_contents(__DIR__.'/../../.htaccess') !== $this->htaccess) {
+			file_put_contents(__DIR__.'/../../.htaccess', $this->htaccess);
 		}
 	}
 }

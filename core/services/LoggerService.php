@@ -1,4 +1,8 @@
 <?php
+namespace core;
+
+	use ReflectionClass;
+	use ReflectionException;
 
 	class LoggerService extends Service implements ILoggerService {
 		const CONSOLE = 1;

@@ -1,5 +1,7 @@
 <?php
 
+namespace core;
+
 
 class ClassFinder extends Base {
 	public static function exists($class) {

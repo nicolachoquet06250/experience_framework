@@ -1,10 +1,13 @@
 <?php
+namespace core;
+
+use mysqli;
 
 class MysqlService extends Service implements IMysqlService {
 	private static $mysql = null;
 
 	/**
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public function initialize_after_injection() {
 		if(is_null(self::$mysql)) {

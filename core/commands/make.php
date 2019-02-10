@@ -1,8 +1,12 @@
 <?php
 
+namespace core;
+
+use Exception;
 use mvc_framework\core\queues\classes\QueueReceiver;
 use mvc_framework\core\queues\classes\QueueSender;
 use mvc_framework\core\queues\traits\Queue;
+use ReflectionException;
 
 class make extends cmd {
 

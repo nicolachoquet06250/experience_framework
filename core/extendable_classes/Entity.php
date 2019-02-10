@@ -1,5 +1,13 @@
 <?php
 
+namespace core;
+
+use Exception;
+use mysqli;
+use ReflectionClass;
+use ReflectionException;
+use ReflectionProperty;
+
 class Entity extends Base implements IEntity {
 	private $fields = [];
 	protected $primary_key;

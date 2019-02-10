@@ -1,6 +1,8 @@
 <?php
 
-require_once __DIR__.'/autoload.php';
+use core\Command;
+
+require_once __DIR__.'/core/autoload.php';
 
 try {
 	Command::create(

@@ -1,4 +1,5 @@
 <?php
+namespace core;
 
 class JsonService extends Service implements IJsonService {
 

@@ -1,5 +1,9 @@
 <?php
 
+namespace core;
+
+use Exception;
+
 class BaseModel extends Model {
 	/** @var mysqli  */
 	private $mysql;

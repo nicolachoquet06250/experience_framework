@@ -1,5 +1,7 @@
 <?php
 
+namespace core;
+
 interface IRepository {
 	public function get_fields($except = []);
 

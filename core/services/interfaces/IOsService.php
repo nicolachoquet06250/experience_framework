@@ -1,4 +1,5 @@
 <?php
+namespace core;
 
 interface IOsService extends IService {
 	public function IAmOnWindowsSystem();

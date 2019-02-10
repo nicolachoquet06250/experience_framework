@@ -1,5 +1,9 @@
 <?php
 
+namespace core;
+
+use Exception;
+
 class Setup extends Base implements ISetup {
 	private $controller;
 	/** @var JsonService $json_service */
@@ -12,27 +16,27 @@ class Setup extends Base implements ISetup {
 	 * @throws Exception
 	 */
 	public function __construct($controller) {
-		// Si la classe existe
 		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
 		if(is_file($external_confs->get_controllers_dir().'/'.ucfirst($controller).'Controller.php')) {
 			require_once $external_confs->get_controllers_dir().'/'.ucfirst($controller).'Controller.php';
+			$namespace = '\\'.$external_confs->get_git_repo()['directory'];
 		}
 		elseif(is_file($external_confs->get_controllers_dir(false).'/'.ucfirst($controller).'Controller.php')) {
 			require_once $external_confs->get_controllers_dir(false).'/'.ucfirst($controller).'Controller.php';
+			$namespace = '\\core';
 		}
-		if(class_exists(ucfirst($controller).'Controller')) {
-			// Je valorise ma propriété avec le paramètre
-		 	$this->controller = $controller;
-		}
-		else {
+		$controller = $namespace.'\\'.$controller;
+		if(!class_exists(ucfirst($controller).'Controller')) {
 			throw new Exception('Le controlleur '.$controller.' n\'existe pas !');
 		}
+		$this->controller = $controller;
 		$this->json_service = $this->get_service('json');
 	}
 
 	/**
 	 * @param null $arg
 	 * @return false|string
+	 * @throws Exception
 	 */
 	public function run($arg = null) {
 		$controller = ucfirst($this->controller).'Controller';

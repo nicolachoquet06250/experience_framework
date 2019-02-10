@@ -1,5 +1,9 @@
 <?php
 
+namespace core;
+
+use Exception;
+
 abstract class Controller extends Base implements IController {
 	private $method;
 	protected $params;
@@ -37,7 +41,6 @@ abstract class Controller extends Base implements IController {
 	/**
 	 * @param null $arg
 	 * @return string
-	 * @throws ReflectionException
 	 * @throws Exception
 	 */
 	public function run($arg = null) {

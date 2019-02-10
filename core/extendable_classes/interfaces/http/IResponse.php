@@ -1,5 +1,7 @@
 <?php
 
+namespace core;
+
 interface IResponse {
 
 	const HTML = 'text/html';

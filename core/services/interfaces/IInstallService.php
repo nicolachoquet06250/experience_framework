@@ -1,4 +1,5 @@
 <?php
+namespace core;
 
 interface IInstallService extends IService {
 	public function databases();

@@ -1,4 +1,7 @@
 <?php
+namespace core;
+
+	use Exception;
 
 	class Micro_templatingService extends Service implements IMicro_templatingService {
 		private $path;
