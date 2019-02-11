@@ -30,26 +30,8 @@ class ErrorController extends Controller {
 	 * @return Response
 	 * @throws Exception
 	 */
-	public function _201() {
-		$this->code(201);
-		return $this->index();
-	}
-
-	/**
-	 * @return Response
-	 * @throws Exception
-	 */
-	public function _404() {
-		$this->code(404);
-		return $this->index();
-	}
-
-	/**
-	 * @return Response
-	 * @throws Exception
-	 */
-	public function _400() {
-		$this->code(400);
+	public function _401() {
+		$this->code(401);
 		return $this->index();
 	}
 
@@ -59,6 +41,15 @@ class ErrorController extends Controller {
 	 */
 	public function _403() {
 		$this->code(403);
+		return $this->index();
+	}
+
+	/**
+	 * @return Response
+	 * @throws Exception
+	 */
+	public function _404() {
+		$this->code(404);
 		return $this->index();
 	}
 
@@ -84,8 +75,8 @@ class ErrorController extends Controller {
 	 * @return Response
 	 * @throws Exception
 	 */
-	public function _501() {
-		$this->code(501);
+	public function _504() {
+		$this->code(504);
 		return $this->index();
 	}
 

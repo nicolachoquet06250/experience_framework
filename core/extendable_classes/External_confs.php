@@ -19,6 +19,7 @@ class External_confs {
 	private static $DEFAULT_UPLOADS_SITE = 'uploads/site';
 	private static $DEFAULT_UPLOADS_PROFIL = 'uploads/profil';
 	private static $DEFAULT_UPLOADS_LOADER = 'uploads/loaders';
+	private static $DEFAULT_COMMANDS = 'commands';
 
 	/**
 	 * External_confs constructor.
@@ -49,6 +50,7 @@ class External_confs {
   "entities": "repository/entities",
   "dao": "repository/dao",
   "responses_class": "responses",
+  "commands": "commands",
   "uploads": {
     "site_images": "uploads/site",
     "profil_image": "uploads/profil",
@@ -92,10 +94,16 @@ class External_confs {
 	}
 
 	public function get_conf_dir($custom = true, $interface = false) {
+		if(!realpath($this->get_root_dir($custom).'/'.(isset($this->conf['confs']) ? $this->conf['confs'] : self::$DEFAULT_CONFS)).$this->get_interface_dir($interface)) {
+			mkdir($this->get_root_dir($custom).'/'.(isset($this->conf['confs']) ? $this->conf['confs'] : self::$DEFAULT_CONFS).$this->get_interface_dir($interface), 0777, true);
+		}
 		return realpath($this->get_root_dir($custom).'/'.(isset($this->conf['confs']) ? $this->conf['confs'] : self::$DEFAULT_CONFS)).$this->get_interface_dir($interface);
 	}
 
 	public function get_services_dir($custom = true, $interface = false) {
+		if(!realpath($this->get_root_dir($custom).'/'.(isset($this->conf['services']) ? $this->conf['services'] : self::$DEFAULT_SERVICES)).$this->get_interface_dir($interface)) {
+			mkdir($this->get_root_dir($custom).'/'.(isset($this->conf['services']) ? $this->conf['services'] : self::$DEFAULT_SERVICES).$this->get_interface_dir($interface), 0777, true);
+		}
 		return realpath($this->get_root_dir($custom).'/'.(isset($this->conf['services']) ? $this->conf['services'] : self::$DEFAULT_SERVICES)).$this->get_interface_dir($interface);
 	}
 
@@ -128,6 +136,16 @@ class External_confs {
 	}
 
 	public function get_git_dependencies_dir($custom = true) {
+		if(!realpath($this->get_root_dir($custom).'/git_dependencies')) {
+			mkdir($this->get_root_dir($custom).'/git_dependencies', 0777, true);
+		}
 		return realpath($this->get_root_dir($custom).'/git_dependencies');
+	}
+
+	public function get_commands_dir($custom = true) {
+		if(!realpath($this->get_root_dir($custom).'/'.((isset($this->conf['commands'])) ? $this->conf['commands'] : self::$DEFAULT_COMMANDS))) {
+			mkdir($this->get_root_dir($custom).'/'.((isset($this->conf['commands'])) ? $this->conf['commands'] : self::$DEFAULT_COMMANDS), 0777, true);
+		}
+		return realpath($this->get_root_dir($custom).'/'.((isset($this->conf['commands'])) ? $this->conf['commands'] : self::$DEFAULT_COMMANDS));
 	}
 }

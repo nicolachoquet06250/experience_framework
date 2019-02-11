@@ -497,5 +497,8 @@ RewriteRule ^([a-zA-Z0-9\_\/]+\.jpg|jpeg|png|gif|svg)$    core/index.php?image=$
 		if(!is_file(__DIR__.'/../../.htaccess') || file_get_contents(__DIR__.'/../../.htaccess') !== $this->htaccess) {
 			file_put_contents(__DIR__.'/../../.htaccess', $this->htaccess);
 		}
+		if(!is_dir(__DIR__.'/../../logs')) {
+			mkdir(__DIR__.'/../../logs', 0777, true);
+		}
 	}
 }

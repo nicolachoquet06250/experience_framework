@@ -47,7 +47,9 @@ class Base implements IBase {
 		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
 		$model = ucfirst($model).'Model';
 		if(file_exists($external_conf->get_models_dir().'/'.$model.'.php')) {
-			require_once $external_conf->get_models_dir(false).'/'.$model.'.php';
+			if(is_file($external_conf->get_models_dir(false).'/'.$model.'.php')) {
+				require_once $external_conf->get_models_dir(false).'/'.$model.'.php';
+			}
 			require_once $external_conf->get_models_dir().'/'.$model.'.php';
 			$namespace = '\\'.$external_conf->get_git_repo()['directory'];
 			$model = $namespace.'\\'.$model;
@@ -74,8 +76,12 @@ class Base implements IBase {
 		$service = ucfirst($service).'Service';
 
 		if(file_exists($external_conf->get_services_dir().'/'.$service.'.php')) {
-			require_once $external_conf->get_services_dir(false, true).'/I'.$service.'.php';
-			require_once $external_conf->get_services_dir(false).'/'.$service.'.php';
+			if(is_file($external_conf->get_services_dir(false, true).'/I'.$service.'.php')) {
+				require_once $external_conf->get_services_dir(false, true).'/I'.$service.'.php';
+			}
+			if(is_file($external_conf->get_services_dir(false).'/'.$service.'.php')) {
+				require_once $external_conf->get_services_dir(false).'/'.$service.'.php';
+			}
 			require_once $external_conf->get_services_dir(true, true).'/I'.$service.'.php';
 			require_once $external_conf->get_services_dir().'/'.$service.'.php';
 			$namespace = '\\'.$external_conf->get_git_repo()['directory'];
@@ -167,9 +173,11 @@ class Base implements IBase {
 	public function get_conf(string $conf) {
 		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
 		$conf = ucfirst($conf).'Conf';
-		require_once $external_conf->get_conf_dir(false).'/'.$conf.'.php';
 		if(file_exists($external_conf->get_conf_dir().'/'.$conf.'.php')) {
 			if(!isset(self::$confs[$conf])) {
+				if(is_file($external_conf->get_conf_dir(false).'/'.$conf.'.php')) {
+					require_once $external_conf->get_conf_dir(false).'/'.$conf.'.php';
+				}
 				require_once $external_conf->get_conf_dir().'/'.$conf.'.php';
 				$namespace = '\\'.$external_conf->get_git_repo()['directory'];
 				$conf = $namespace.'\\'.$conf;
@@ -215,5 +223,21 @@ class Base implements IBase {
 			self::$queues_loader = new \mvc_framework\core\queues\ModuleLoader();
 		}
 		return self::$queues_loader;
+	}
+
+	protected function run_callback($function, $arg_list = []) {
+		$args = [];
+		foreach ($arg_list as $key => $arg) {
+			if(is_string($arg)) {
+				$args[] = '"'.$arg.'"';
+			}
+			elseif (is_numeric($arg)) {
+				$args[] = $arg;
+			}
+			elseif (is_array($arg) || is_object($arg)) {
+				$args[] = '$arg_list['.$key.']';
+			}
+		}
+		eval($function.'('.implode(', ', $args).');');
 	}
 }

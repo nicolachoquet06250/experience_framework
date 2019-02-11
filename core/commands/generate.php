@@ -15,6 +15,9 @@ class generate extends cmd {
 	 * @throws Exception
 	 */
 	public function mvc() {
+
+		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
+
 		$return = '';
 		if(!$this->has_arg('name')) {
 			throw new Exception('Vous devez définir un paramètre `name` !!');
@@ -40,19 +43,14 @@ class generate extends cmd {
 
 	class '.ucfirst($name).'Model extends BaseModel {}';
 
-		file_put_contents(__DIR__.'/../mvc/controllers/'.ucfirst($name).'Controller.php', $controller);
-		file_put_contents(__DIR__.'/../mvc/models/'.ucfirst($name).'Model.php', $model);
+		file_put_contents($external_confs->get_controllers_dir().'/'.ucfirst($name).'Controller.php', $controller);
+		file_put_contents($external_confs->get_models_dir().'/'.ucfirst($name).'Model.php', $model);
 		$return .= 'Le model et le controller '.$name.' ont bien été créés !!';
-		if($this->os_service->IAmOnUnixSystem()) {
-			exec('git add '.__DIR__.'/../mvc/controllers/'.ucfirst($name).'Controller.php');
-			exec('git add '.__DIR__.'/../mvc/models/'.ucfirst($name).'Model.php');
-			$return .= "\nLe model et le controlleur $name ont bien été ajoutés à GIT !!";
-		}
-		else {
-			exec('"c:\Program Files\Git\bin\git.exe" add '.__DIR__.'/../mvc/controllers/'.ucfirst($name).'Controller.php');
-			exec('"c:\Program Files\Git\bin\git.exe" add '.__DIR__.'/../mvc/models/'.ucfirst($name).'Model.php');
-			$return .= "\nLe model et le controlleur $name ont bien été ajoutés à GIT !!";
-		}
+//		$command_ctrl = $this->os_service->git_path().' add '.$external_confs->get_controllers_dir().'/'.ucfirst($name).'Controller.php';
+//		$command_model = $this->os_service->git_path().' add '.$external_confs->get_models_dir().'/'.ucfirst($name).'Model.php';
+//		exec($command_ctrl);
+//		exec($command_model);
+		$return .= "\nLe model et le controlleur $name ont bien été ajoutés à GIT !!";
 		return $return;
 	}
 
@@ -60,6 +58,9 @@ class generate extends cmd {
 	 * @throws Exception
 	 */
 	public function command() {
+
+		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
+
 		$return = '';
 		if(!$this->has_arg('name')) {
 			throw new Exception('Vous devez définir un paramètre `name` !!');
@@ -71,17 +72,11 @@ class generate extends cmd {
 	
 	class '.$name.' extends cmd {}';
 
-		file_put_contents(__DIR__.'/'.$name.'.php', $command);
+		file_put_contents($external_confs->get_commands_dir().'/'.$name.'.php', $command);
 		$return .= 'La commande '.$name.' à bien été créée !!';
-		if($this->os_service->IAmOnUnixSystem()) {
-			exec('git add '.__DIR__.'/'.$name.'.php');
-			$return .= "\nLa commande $name à bien été ajoutée à GIT !!";
-		}
-		else {
-			exec('"c:\Program Files\Git\bin\git.exe" add '.__DIR__.'/'.$name.'.php');
-			$return .= "\nLa commande $name à bien été ajoutée à GIT !!";
-		}
-
+//		$command_line = $this->os_service->git_path().' add '.$external_confs->get_commands_dir().'/'.$name.'.php';
+//		exec($command_line);
+		$return .= "\nLa commande $name à bien été ajoutée à GIT !!";
 		return $return;
 	}
 
@@ -89,6 +84,8 @@ class generate extends cmd {
 	 * @throws Exception
 	 */
 	public function repository() {
+		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
+
 		$return = '';
 		if(!$this->has_arg('name')) {
 			throw new Exception('Vous devez définir un paramètre `name` !!');
@@ -204,19 +201,14 @@ class generate extends cmd {
 	}
 ';
 
-		file_put_contents(__DIR__.'/../dao/'.ucfirst($name).'Dao.php', $dao);
-		file_put_contents(__DIR__.'/../entities/'.ucfirst($name).'Entity.php', $entity);
+		file_put_contents($external_confs->get_dao_dir().'/'.ucfirst($name).'Dao.php', $dao);
+		file_put_contents($external_confs->get_entities_dir().'/'.ucfirst($name).'Entity.php', $entity);
 		$return .= 'L\'entité et le répository '.$name.' ont bien été créés !!';
-		if($this->os_service->IAmOnUnixSystem()) {
-			exec('git add '.__DIR__.'/../entities/'.ucfirst($name).'Entity.php');
-			exec('git add '.__DIR__.'/../dao/'.ucfirst($name).'Dao.php');
-			$return .= "\nL'entité et le répository $name ont bien été ajoutés à GIT !!";
-		}
-		else {
-			exec('"c:\Program Files\Git\bin\git.exe" add '.__DIR__.'/../entities/'.ucfirst($name).'Entity.php');
-			exec('"c:\Program Files\Git\bin\git.exe" add '.__DIR__.'/../dao/'.ucfirst($name).'Dao.php');
-			$return .= "\nL'entité et le répository $name ont bien été ajoutés à GIT !!";
-		}
+//		$command_entity = $this->os_service->git_path().' add '.$external_confs->get_entities_dir().'/'.ucfirst($name).'Entity.php';
+//		$command_dao = $this->os_service->git_path().' add '.$external_confs->get_dao_dir().'/'.ucfirst($name).'Dao.php';
+//		exec($command_entity);
+//		exec($command_dao);
+		$return .= "\nL'entité et le répository $name ont bien été ajoutés à GIT !!";
 		return $return;
 	}
 
@@ -225,6 +217,8 @@ class generate extends cmd {
 	 * @throws Exception
 	 */
 	public function service() {
+		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
+
 		$return = '';
 		if(!$this->has_arg('name')) {
 			throw new Exception('Vous devez définir un paramètre `name` !!');
@@ -244,19 +238,14 @@ class generate extends cmd {
 		public function initialize_after_injection() {}
 	}';
 
-		file_put_contents(__DIR__.'/../services/interfaces/I'.$name.'Service.php', $interface);
-		file_put_contents(__DIR__.'/../services/'.$name.'Service.php', $service);
+		file_put_contents($external_confs->get_services_dir(true, true).'/I'.$name.'Service.php', $interface);
+		file_put_contents($external_confs->get_services_dir().'/'.$name.'Service.php', $service);
 		$return .= 'Le service '.$name.' et son interface ont bien été créés !!';
-		if($this->os_service->IAmOnUnixSystem()) {
-			exec('git add '.__DIR__.'/../services/interfaces/I'.$name.'Service.php');
-			exec('git add '.__DIR__.'/../services/'.$name.'Service.php');
-			$return .= "\nLe service $name et son interface ont bien été ajoutés à GIT !!";
-		}
-		else {
-			exec('"c:\Program Files\Git\bin\git.exe" add '.__DIR__.'/../services/interfaces/I'.$name.'Service.php');
-			exec('"c:\Program Files\Git\bin\git.exe" add '.__DIR__.'/../services/'.$name.'Service.php');
-			$return .= "\nLe service $name et son interface ont bien été ajoutés à GIT !!";
-		}
+//		$command_interface = $this->os_service->git_path().' add '.$external_confs->get_services_dir(true, true).'/I'.$name.'Service.php';
+//		$command_class = $this->os_service->git_path().' add '.$external_confs->get_services_dir().'/'.$name.'Service.php';
+//		exec($command_interface);
+//		exec($command_class);
+		$return .= "\nLe service $name et son interface ont bien été ajoutés à GIT !!";
 
 		return $return;
 	}

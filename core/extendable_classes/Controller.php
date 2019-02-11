@@ -29,8 +29,7 @@ abstract class Controller extends Base implements IController {
 			$this->method = $action;
 			$this->params = $params;
 		}
-		else $this->http_error = $this->get_error_controller(404)
-									 ->message('La méthode '.get_class($this).'::'.$action.'() n\'existe pas !');
+		else $this->http_error = $this->PAGE_NOT_FOUND(get_class($this).'::'.$action.'() method not found !');
 	}
 
 	/**
@@ -81,7 +80,88 @@ abstract class Controller extends Base implements IController {
 	 * @throws Exception
 	 */
 	protected function get_error_controller(int $code) {
-		$error_action = '_'.$code;
-		return new ErrorController($error_action, []);
+		return new ErrorController('_'.$code, []);
+	}
+
+	/**
+	 * @param $message
+	 * @param string $return_type
+	 * @return Response
+	 * @throws Exception
+	 */
+	protected function OK($message, $return_type = Response::JSON) {
+		return $this->get_response($message, $return_type);
+	}
+
+	/**
+	 * @param $message
+	 * @return ErrorController
+	 * @throws Exception
+	 */
+	protected function FORBIDDEN($message) {
+		return $this->get_error_controller(403)->message($message);
+	}
+
+	/**
+	 * @param $message
+	 * @return ErrorController
+	 * @throws Exception
+	 */
+	protected function NOT_AUTHENTICATED_USER($message) {
+		return $this->get_error_controller(401)->message($message);
+	}
+
+	/**
+	 * @param $message
+	 * @return ErrorController
+	 * @throws Exception
+	 */
+	protected function PAGE_NOT_FOUND($message) {
+		return $this->get_error_controller(404)->message($message);
+	}
+
+	/**
+	 * @param $message
+	 * @return ErrorController
+	 * @throws Exception
+	 */
+	protected function INTERNAL_ERROR($message) {
+		return $this->get_error_controller(500)->message($message);
+	}
+
+	/**
+	 * @param $message
+	 * @return ErrorController
+	 * @throws Exception
+	 */
+	protected function SERVER_ERROR($message) {
+		return $this->get_error_controller(503)->message($message);
+	}
+
+	/**
+	 * @param $message
+	 * @return ErrorController
+	 * @throws Exception
+	 */
+	protected function SERVER_NOT_RESPOND($message) {
+		return $this->get_error_controller(504)->message($message);
+	}
+
+	/**
+	 * @param string $url
+	 * @param string $message
+	 */
+	protected function PERMANENTLY_REDIRECT($url, $message = 'Move Permanently') {
+		header("Status: 301 ".$message, false, 301);
+		header("Location: ".$url);
+	}
+
+	/**
+	 * @param string $url
+	 * @param string $message
+	 */
+	protected function TEMPORARY_REDIRECT($url, $message = 'Move Permanently') {
+		header("Status: 302 ".$message, false, 302);
+		header("Location: ".$url);
 	}
 }
