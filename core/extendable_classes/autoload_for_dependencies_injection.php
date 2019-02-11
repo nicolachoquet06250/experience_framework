@@ -16,6 +16,7 @@ spl_autoload_register(function ($class) {
 		'dao' => 'dao',
 		'entity' => 'entities',
 		'conf' => 'conf',
+		'context' => 'context',
 	];
 
 	foreach (array_keys($charge) as $class_type) {

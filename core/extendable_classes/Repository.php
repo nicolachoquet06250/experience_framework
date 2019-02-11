@@ -35,6 +35,14 @@ class Repository extends Base implements IRepository {
 	}
 
 	/**
+	 * @return Entity
+	 * @throws Exception
+	 */
+	public function entity() {
+		return $this->get_entity($this->table_name);
+	}
+
+	/**
 	 * @param array $except
 	 * @return array
 	 * @throws Exception

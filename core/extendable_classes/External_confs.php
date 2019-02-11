@@ -136,9 +136,6 @@ class External_confs {
 	}
 
 	public function get_git_dependencies_dir($custom = true) {
-		if(!realpath($this->get_root_dir($custom).'/git_dependencies')) {
-			mkdir($this->get_root_dir($custom).'/git_dependencies', 0777, true);
-		}
 		return realpath($this->get_root_dir($custom).'/git_dependencies');
 	}
 
@@ -147,5 +144,12 @@ class External_confs {
 			mkdir($this->get_root_dir($custom).'/'.((isset($this->conf['commands'])) ? $this->conf['commands'] : self::$DEFAULT_COMMANDS), 0777, true);
 		}
 		return realpath($this->get_root_dir($custom).'/'.((isset($this->conf['commands'])) ? $this->conf['commands'] : self::$DEFAULT_COMMANDS));
+	}
+
+	public function get_contexts_dir($custom = true) {
+		if(!realpath($this->get_root_dir($custom).'/'.((isset($this->conf['contexts'])) ? $this->conf['contexts'] : self::$DEFAULT_CONTEXTS))) {
+			mkdir($this->get_root_dir($custom).'/'.((isset($this->conf['contexts'])) ? $this->conf['contexts'] : self::$DEFAULT_CONTEXTS), 0777, true);
+		}
+		return realpath($this->get_root_dir($custom).'/'.((isset($this->conf['contexts'])) ? $this->conf['contexts'] : self::$DEFAULT_CONTEXTS));
 	}
 }

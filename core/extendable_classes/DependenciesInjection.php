@@ -9,10 +9,12 @@ use ReflectionException;
 class DependenciesInjection {
 	const CONTROLLER = 'controller';
 	const COMMAND = 'command';
+	const CONTEXT = 'context';
 
 	const callbacks = [
 		self::CONTROLLER => '\core\DependenciesInjection::controller',
 		self::COMMAND => '\core\DependenciesInjection::command',
+		self::CONTEXT => '\core\DependenciesInjection::context',
 	];
 
 	private static $method_parameters = [];
@@ -23,7 +25,7 @@ class DependenciesInjection {
 	 * @param $method
 	 * @return mixed|Response
 	 */
-	public static function start($type, $object, $method) {
+	public static function start($type, $object, $method = '') {
 		$local_method = self::callbacks[$type];
 		return $local_method($object, $method);
 	}
@@ -37,8 +39,11 @@ class DependenciesInjection {
 	private static function common_execution($object, $method) {
 		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
 		$ref_class             = new ReflectionClass(get_class($object));
-		$ref_method            = $ref_class->getMethod($method);
-		$ref_method_parameters = $ref_method->getParameters();
+		$ref_method_parameters = [];
+		if($method !== '') {
+			$ref_method = $ref_class->getMethod($method);
+			$ref_method_parameters = $ref_method->getParameters();
+		}
 
 		self::$method_parameters = [];
 
@@ -54,43 +59,45 @@ class DependenciesInjection {
 				}
 			}
 		}
+		if($method !== '') {
+			foreach ($ref_method_parameters as $ref_method_parameter) {
+				$class      = $ref_method_parameter->getClass();
+				$class_name = $class->getName();
 
-		foreach ($ref_method_parameters as $ref_method_parameter) {
-			$class      = $ref_method_parameter->getClass();
-			$class_name = $class->getName();
+				$condition_class = $class->getName();
+				$condition_obj   = new $condition_class();
 
-			$condition_class = $class->getName();
-			$condition_obj = new $condition_class();
-
-			if($condition_obj instanceof Service) {
-				$class_name          = str_replace('Service', '', $class_name);
-				$class_name			 = str_replace(['core\\', $external_confs->get_git_repo()['directory'].'\\'], '', $class_name);
-				$class_name          = strtolower($class_name);
-				self::$method_parameters[] = '$object->get_service(\''.$class_name.'\')';
-			}
-			elseif ($condition_obj instanceof Conf) {
-				$class_name          = str_replace('Conf', '', $class_name);
-				$class_name			 = str_replace(['core\\', $external_confs->get_git_repo()['directory'].'\\'], '', $class_name);
-				$class_name          = strtolower($class_name);
-				self::$method_parameters[] = '$object->get_conf(\''.$class_name.'\')';
-			}
-			elseif ($condition_obj instanceof Entity) {
-				$class_name          = str_replace('Entity', '', $class_name);
-				$class_name			 = str_replace(['core\\', $external_confs->get_git_repo()['directory'].'\\'], '', $class_name);
-				$class_name          = strtolower($class_name);
-				self::$method_parameters[] = '$object->get_entity(\''.$class_name.'\')';
-			}
-			elseif ($condition_obj instanceof Model) {
-				$class_name          = str_replace('Model', '', $class_name);
-				$class_name			 = str_replace(['core\\', $external_confs->get_git_repo()['directory'].'\\'], '', $class_name);
-				$class_name          = strtolower($class_name);
-				self::$method_parameters[] = '$object->get_model(\''.$class_name.'\')';
-			}
-			elseif ($condition_obj instanceof Repository) {
-				$class_name          = str_replace('Dao', '', $class_name);
-				$class_name			 = str_replace(['core\\', $external_confs->get_git_repo()['directory'].'\\'], '', $class_name);
-				$class_name          = strtolower($class_name);
-				self::$method_parameters[] = '$object->get_dao(\''.$class_name.'\')';
+				if ($condition_obj instanceof Service) {
+					$class_name                = str_replace('Service', '', $class_name);
+					$class_name                = str_replace(['core\\', $external_confs->get_git_repo()['directory'].'\\'], '', $class_name);
+					$class_name                = strtolower($class_name);
+					self::$method_parameters[] = '$object->get_service(\''.$class_name.'\')';
+				} elseif ($condition_obj instanceof Conf) {
+					$class_name                = str_replace('Conf', '', $class_name);
+					$class_name                = str_replace(['core\\', $external_confs->get_git_repo()['directory'].'\\'], '', $class_name);
+					$class_name                = strtolower($class_name);
+					self::$method_parameters[] = '$object->get_conf(\''.$class_name.'\')';
+				} elseif ($condition_obj instanceof Entity) {
+					$class_name                = str_replace('Entity', '', $class_name);
+					$class_name                = str_replace(['core\\', $external_confs->get_git_repo()['directory'].'\\'], '', $class_name);
+					$class_name                = strtolower($class_name);
+					self::$method_parameters[] = '$object->get_entity(\''.$class_name.'\')';
+				} elseif ($condition_obj instanceof Model) {
+					$class_name                = str_replace('Model', '', $class_name);
+					$class_name                = str_replace(['core\\', $external_confs->get_git_repo()['directory'].'\\'], '', $class_name);
+					$class_name                = strtolower($class_name);
+					self::$method_parameters[] = '$object->get_model(\''.$class_name.'\')';
+				} elseif ($condition_obj instanceof Repository) {
+					$class_name                = str_replace('Dao', '', $class_name);
+					$class_name                = str_replace(['core\\', $external_confs->get_git_repo()['directory'].'\\'], '', $class_name);
+					$class_name                = strtolower($class_name);
+					self::$method_parameters[] = '$object->get_dao(\''.$class_name.'\')';
+				} elseif ($condition_obj instanceof DbContext) {
+					$class_name                = str_replace('Context', '', $class_name);
+					$class_name                = str_replace(['core\\', $external_confs->get_git_repo()['directory'].'\\'], '', $class_name);
+					$class_name                = strtolower($class_name);
+					self::$method_parameters[] = '$object->get_context(\''.$class_name.'\')';
+				}
 			}
 		}
 
@@ -125,6 +132,12 @@ class DependenciesInjection {
 				$class_name      = strtolower($class_name);
 				$method_name     = 'get_entity';
 				$object->$property = $object->$method_name($class_name);
+			} elseif (strstr($_class, 'Context')) {
+				$class_name      = str_replace('Context', '', $_class);
+				$class_name			 = str_replace(['core\\', $external_confs->get_git_repo()['directory'].'\\'], '', $class_name);
+				$class_name      = strtolower($class_name);
+				$method_name     = 'get_context';
+				$object->$property = $object->$method_name($class_name);
 			}
 		}
 	}
@@ -158,5 +171,14 @@ class DependenciesInjection {
 		/** @var mixed $response */
 		eval('$response = $object->'.$method.'('.implode(', ', self::$method_parameters).');');
 		return $response;
+	}
+
+	/**
+	 * @param $object
+	 * @param string $method
+	 * @throws ReflectionException
+	 */
+	public static function context($object, $method = '') {
+		self::common_execution($object, $method);
 	}
 }

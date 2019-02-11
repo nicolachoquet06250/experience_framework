@@ -2,6 +2,7 @@
 
 namespace core;
 
+use custom\pizzygoContext;
 use Exception;
 use mvc_framework\core\queues\classes\QueueReceiver;
 use mvc_framework\core\queues\classes\QueueSender;
@@ -83,5 +84,20 @@ class make extends cmd {
 			];
 		}
 		file_put_contents(__DIR__.'/../../external_confs/custom.json', json_encode($custom));
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function migration(mysqlConf $mysqlConf) {
+		$db_prefix = '';
+		if($mysqlConf->has_property('db_prefix')) {
+			$db_prefix = $mysqlConf->get('db_prefix');
+		}
+		foreach ($this->get_contexts() as $context) {
+			$context = $this->get_context('pizzygo', $db_prefix);
+			var_dump($context->users->entity());
+		}
+
 	}
 }

@@ -240,4 +240,52 @@ class Base implements IBase {
 		}
 		eval($function.'('.implode(', ', $args).');');
 	}
+
+	/**
+	 * @return array
+	 * @throws Exception
+	 */
+	protected function get_contexts() {
+		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$directory = $external_conf->get_contexts_dir();
+		$dir = opendir($directory);
+		$contexts = [];
+		while (($elem = readdir($dir)) !== false) {
+			if($elem !== '.' && $elem !== '..') {
+				$contexts[] = strtolower(str_replace(['\\'.$external_conf->get_git_repo()['directory'].'\\', 'Context.php'], '', $elem));
+			}
+		}
+
+		$directory = $external_conf->get_controllers_dir(false);
+		$dir = opendir($directory);
+		while (($elem = readdir($dir)) !== false) {
+			if($elem !== '.' && $elem !== '..') {
+				$contexts[] = strtolower(str_replace(['\\core\\', 'Context.php'], '', $elem));
+			}
+		}
+		return $contexts;
+	}
+
+	/**
+	 * @param $context
+	 * @param string $db_prefix
+	 * @return DbContext
+	 * @throws Exception
+	 */
+	protected function get_context($context, $db_prefix = '') {
+		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$context = ucfirst($context).'Context';
+		if(is_file($external_conf->get_contexts_dir().'/'.$context.'.php')) {
+			require_once $external_conf->get_contexts_dir().'/'.$context.'.php';
+			$namespace = $external_conf->get_git_repo()['directory'].'\\';
+			$context = $namespace.$context;
+			return new $context($db_prefix);
+		}
+		elseif(is_file($external_conf->get_contexts_dir(false).'/'.$context.'.php')) {
+			require_once $external_conf->get_contexts_dir(false).'/'.$context.'.php';
+			$namespace = 'core\\';
+			$context = $namespace.$context;
+			return new $context($db_prefix);
+		}
+	}
 }
