@@ -101,9 +101,9 @@ class External_confs {
 	}
 
 	public function get_services_dir($custom = true, $interface = false) {
-		if(!realpath($this->get_root_dir($custom).'/'.(isset($this->conf['services']) ? $this->conf['services'] : self::$DEFAULT_SERVICES)).$this->get_interface_dir($interface)) {
-			mkdir($this->get_root_dir($custom).'/'.(isset($this->conf['services']) ? $this->conf['services'] : self::$DEFAULT_SERVICES).$this->get_interface_dir($interface), 0777, true);
-		}
+//		if(!realpath($this->get_root_dir($custom).'/'.(isset($this->conf['services']) ? $this->conf['services'] : self::$DEFAULT_SERVICES)).$this->get_interface_dir($interface)) {
+//			mkdir($this->get_root_dir($custom).'/'.(isset($this->conf['services']) ? $this->conf['services'] : self::$DEFAULT_SERVICES).$this->get_interface_dir($interface), 0777, true);
+//		}
 		return realpath($this->get_root_dir($custom).'/'.(isset($this->conf['services']) ? $this->conf['services'] : self::$DEFAULT_SERVICES)).$this->get_interface_dir($interface);
 	}
 
