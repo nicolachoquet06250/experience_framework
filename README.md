@@ -34,4 +34,7 @@ framework php permétant de simplifier le développement d'une webapi
     - getAll
     - getById
     - addShop
+-------------------------------------------------------------
+- OAuth server 
+    - https://bshaffer.github.io/oauth2-server-php-docs/
     
