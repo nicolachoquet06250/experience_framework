@@ -10,12 +10,12 @@ namespace core;
 	class DocumentationModel extends BaseModel {
 		private $routes;
 		private $section_template = <<<HTML
-			<div class="row" id="{{write_json_response}}">
+			<div class="row" id="{{\$write_json_response}}">
 				<div class="card">
 					<div class="card-title" style="padding-left: 15px; padding-top: 10px;">
-						<div class="row {{affichage}}">
+						<div class="row {{\$affichage}}">
 							<div class="col s12">
-								<h5 class="title">{{title}}</h5>
+								<h5 class="title">{{\$title}}</h5>
 							</div>
 						</div>
 					</div>
@@ -23,16 +23,16 @@ namespace core;
 						<div class="row">
 							<div class="col s12">
 								<p>
-									{{describe}}
+									{{\$describe}}
 								</p>
 							</div>
 							<div class="col s10">
 								<div class="row">
 									<div class="col s12 api_url">
-										<code><pre><b>{{http_method}} [domain]/api/index.php{{url}}</b></pre></code>	
+										<code><pre><b>{{\$http_method}} [domain]/api/index.php{{\$url}}</b></pre></code>	
 									</div>
 									<div class="col s12 api_url">
-										 <code><pre><i>{{alias}}</i></pre></code>
+										 <code><pre><i>{{\$alias}}</i></pre></code>
 									</div>
 								</div>
 							</div>
@@ -40,10 +40,10 @@ namespace core;
 								<span data-badge-caption="" class="http-code-{{write_json_response}}"></span>
 							</div>
 							<div class="col s12">
-								{{input_fields}}
+								{{\$input_fields}}
 							</div>
 							<div class="col s12" style="max-height: 300px; overflow: auto;">
-								<pre class="write_json_response {{write_json_response}}"><code></code></pre>
+								<pre class="write_json_response {{\$write_json_response}}"><code></code></pre>
 							</div>
 						</div>
 					</div>
@@ -119,14 +119,14 @@ HTML;
 
 			return str_replace(
 				[
-					'{{http_method}}',
-					'{{url}}',
-					'{{input_fields}}',
-					'{{alias}}',
-					'{{write_json_response}}',
-					'{{title}}',
-					'{{describe}}',
-					'{{affichage}}'
+					'{{$http_method}}',
+					'{{$url}}',
+					'{{$input_fields}}',
+					'{{$alias}}',
+					'{{$write_json_response}}',
+					'{{$title}}',
+					'{{$describe}}',
+					'{{$affichage}}'
 				], [
 					$http_verb,
 					$url,

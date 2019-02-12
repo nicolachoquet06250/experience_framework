@@ -107,8 +107,23 @@ class make extends cmd {
 		}
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	public function test_triggers() {
 		Trigger::create()->trig(TriggerConf::BeforeSendEmail, $this->get_service('logger'));
 		Trigger::create()->trig(TriggerConf::AfterSendEmail, $this->get_service('logger'));
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function test_views() {
+		$view = new View();
+		$view->set_directory(__DIR__.'/../mvc/views/documentation');
+		return $view->display('developer', [
+			'sections' => '<b>hello</b>',
+			'sidenav_controllers' => '<i>coucou</i>',
+		]);
 	}
 }

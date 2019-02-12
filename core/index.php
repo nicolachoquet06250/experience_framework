@@ -3,6 +3,8 @@ header("Access-Control-Allow-Origin: *");
 ini_set('display_errors', 'on');
 require_once __DIR__.'/autoload.php';
 
+define('__ROOT__', __DIR__);
+
 echo core\Router::create($_SERVER['REQUEST_URI'],
 	function (string $controller) {
 		(new \core\Base())->get_conf('trigger');
