@@ -460,9 +460,19 @@ RewriteRule ^([a-zA-Z0-9\_\/]+\.jpg|jpeg|png|gif|svg)$    core/index.php?image=$
 			echo implode("\n", $output)."\n";
 		}
 		foreach ($dependencies->get_all() as $dir => $dependency) {
+			$_composer = false;
+			if(is_array($dependency)) {
+				if(isset($dependency['composer'])) {
+					$_composer = $dependency['composer'];
+				}
+				$dependency = $dependency['repository'];
+			}
 			if(!is_dir(__DIR__.'/../../git_dependencies/'.$dir)) {
 				echo 'Installation du repository git `'.$dir.'`'."\n";
 				exec($git_service->git_path().' clone '.$dependency.' '.$external_conf->get_git_dependencies_dir().'/'.$dir);
+				if($_composer) {
+					exec('cd '.$external_conf->get_git_dependencies_dir().'/'.$dir.' && '.$osService->composer(false).' install');
+				}
 			}
 			else {
 				echo 'Mise à jour du repository git `'.$dir.'`'."\n";

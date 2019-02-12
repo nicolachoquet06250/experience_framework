@@ -13,8 +13,15 @@ if(is_file($external_conf->get_vendor_dir().'/autoload.php')) {
 	require_once $external_conf->get_vendor_dir().'/autoload.php';
 }
 
-if(is_file($external_conf->get_git_dependencies_dir().'/autoload.php')) {
-	require_once $external_conf->get_git_dependencies_dir().'/autoload.php';
+$dependencies = (new \core\Base())->get_conf('dependencies');
+foreach ($dependencies->get_all() as $dir => $dependency) {
+	$autoload = 'autoload.php';
+	if(is_array($dependency)) {
+		if(isset($dependency['autoloader'])) {
+			$autoload = $dependency['autoloader'];
+		}
+	}
+	require_once $external_conf->get_git_dependencies_dir().'/'.$dir.'/'.$autoload;
 }
 
 if(is_dir($external_conf->get_controllers_dir(false))) {
