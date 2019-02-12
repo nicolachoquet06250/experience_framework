@@ -462,7 +462,7 @@ RewriteRule ^([a-zA-Z0-9\_\/]+\.jpg|jpeg|png|gif|svg)$    core/index.php?image=$
 		foreach ($dependencies->get_all() as $dir => $dependency) {
 			if(!is_dir(__DIR__.'/../../git_dependencies/'.$dir)) {
 				echo 'Installation du repository git `'.$dir.'`'."\n";
-				exec($git_service->git_path().' clone '.$dependency.' '.__DIR__.'/../../git_dependencies/'.$dir);
+				exec($git_service->git_path().' clone '.$dependency.' '.$external_conf->get_git_dependencies_dir().'/'.$dir);
 			}
 			else {
 				echo 'Mise à jour du repository git `'.$dir.'`'."\n";

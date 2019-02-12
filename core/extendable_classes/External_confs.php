@@ -68,6 +68,9 @@ class External_confs {
 	 * @throws Exception
 	 */
 	public static function create() {
+		if(!defined('__ROOT__')) {
+			define('__ROOT__', realpath(__DIR__.'/../..'));
+		}
 		if(is_null(self::$instance)) {
 			self::$instance = new External_confs();
 		}
@@ -76,13 +79,13 @@ class External_confs {
 
 	public function get_root_dir($custom = true) {
 		if ($custom) {
-			return realpath(__DIR__.'/../../'.(isset($this->conf['root_directory']) ? $this->conf['root_directory'] : self::$DEFAULT_ROOT));
+			return realpath(__ROOT__.'/'.(isset($this->conf['root_directory']) ? $this->conf['root_directory'] : self::$DEFAULT_ROOT));
 		}
 		return $this->get_core_dir();
 	}
 
 	private function get_core_dir() {
-		return realpath(__DIR__.'/..');
+		return realpath(__ROOT__.'/core');
 	}
 
 	public function get_git_repo() {
@@ -106,9 +109,6 @@ class External_confs {
 	}
 
 	public function get_conf_dir($custom = true, $interface = false) {
-		if(!realpath($this->get_root_dir($custom).'/'.(isset($this->conf['confs']) ? $this->conf['confs'] : self::$DEFAULT_CONFS)).$this->get_interface_dir($interface)) {
-			mkdir($this->get_root_dir($custom).'/'.(isset($this->conf['confs']) ? $this->conf['confs'] : self::$DEFAULT_CONFS).$this->get_interface_dir($interface), 0777, true);
-		}
 		return realpath($this->get_root_dir($custom).'/'.(isset($this->conf['confs']) ? $this->conf['confs'] : self::$DEFAULT_CONFS)).$this->get_interface_dir($interface);
 	}
 
@@ -147,8 +147,8 @@ class External_confs {
 		return realpath($this->get_root_dir($custom).'/vendor');
 	}
 
-	public function get_git_dependencies_dir($custom = true) {
-		return realpath($this->get_root_dir($custom).'/git_dependencies');
+	public function get_git_dependencies_dir() {
+		return realpath(__ROOT__.'/git_dependencies');
 	}
 
 	public function get_commands_dir($custom = true) {
