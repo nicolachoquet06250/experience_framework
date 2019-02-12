@@ -3,7 +3,7 @@
 namespace core;
 
 interface IEntity extends IBase {
-	public function create_db();
+	public function create_table();
 
 	public function remove_table();
 

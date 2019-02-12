@@ -159,9 +159,6 @@ class External_confs {
 	}
 
 	public function get_contexts_dir($custom = true) {
-		if(!realpath($this->get_root_dir($custom).'/'.((isset($this->conf['contexts'])) ? $this->conf['contexts'] : self::$DEFAULT_CONTEXTS))) {
-			mkdir($this->get_root_dir($custom).'/'.((isset($this->conf['contexts'])) ? $this->conf['contexts'] : self::$DEFAULT_CONTEXTS), 0777, true);
-		}
 		return realpath($this->get_root_dir($custom).'/'.((isset($this->conf['contexts'])) ? $this->conf['contexts'] : self::$DEFAULT_CONTEXTS));
 	}
 }

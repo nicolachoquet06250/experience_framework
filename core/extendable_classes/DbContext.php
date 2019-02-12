@@ -4,6 +4,7 @@ namespace core;
 
 
 use Exception;
+use mysqli;
 use ReflectionClass;
 use ReflectionException;
 
@@ -11,6 +12,8 @@ class DbContext extends Base {
 	protected $db_sets = [];
 	protected $database_name = '';
 	protected $prefix;
+	/** @var mysqli $mysql */
+	protected $mysql;
 
 	/**
 	 * DbContext constructor.
@@ -26,6 +29,9 @@ class DbContext extends Base {
 
 		$this->init_database_name();
 		$this->init_db_sets();
+		/** @var MysqlService $mysql_service */
+		$mysql_service = $this->get_service('mysql');
+		$this->mysql = $mysql_service->get_connector();
 	}
 
 	/**
@@ -35,7 +41,8 @@ class DbContext extends Base {
 		$ref_class = new ReflectionClass(get_class($this));
 		foreach ($ref_class->getProperties() as $property => $detail) {
 			if($detail->class !== DbContext::class) {
-				$this->db_sets[$detail->getName()] = $detail->getValue();
+				$prop = $detail->getName();
+				$this->db_sets[$detail->getName()] = $this->$prop;
 			}
 		}
 	}
@@ -63,5 +70,36 @@ class DbContext extends Base {
 
 	public function set_db_prefix($prefix) {
 		$this->prefix = $prefix;
+	}
+
+	/**
+	 * @return Repository[]
+	 */
+	public function get_db_sets() {
+		return $this->db_sets;
+	}
+
+	public function create_database() {
+		return $this->mysql->query('CREATE DATABASE IF NOT EXISTS '.$this->get_db_name());
+	}
+
+	public function get_db_name($for_include = true) {
+		$external_conf = External_confs::create();
+		$name = '';
+		if($for_include) {
+			$name .= '`';
+		}
+
+		if ($this->prefix !== '') {
+			$name .= $this->prefix.'_';
+		}
+
+		$name .= strtolower(str_replace(['core\\', $external_conf->get_git_repo()['directory'].'\\', 'Context'], '', get_class($this)));
+
+		if($for_include) {
+			$name .= '`';
+		}
+
+		return $name;
 	}
 }

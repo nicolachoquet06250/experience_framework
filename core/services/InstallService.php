@@ -21,7 +21,7 @@ class InstallService extends Service implements IInstallService {
 		$this->mysql_conf->remove_property('table-prefix', false, false);
 		foreach ($this->get_entities() as $entity_name) {
 			$entity = $this->get_entity($entity_name);
-			if(!$entity->create_db()) {
+			if(!$entity->create_table()) {
 				throw new Exception('Une erreur est survenue lors de la création de la table '.$entity_name);
 			}
 		}
@@ -37,7 +37,7 @@ class InstallService extends Service implements IInstallService {
 		$this->mysql_conf->set('table-prefix', $db_table_prefix, false);
 		foreach ($this->get_entities() as $entity_name) {
 			$entity = $this->get_entity($entity_name);
-			if(!$entity->create_db()) {
+			if(!$entity->create_table()) {
 				throw new Exception('Une erreur est survenue lors de la création de la table '.$entity_name);
 			}
 		}

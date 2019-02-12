@@ -2,7 +2,6 @@
 
 namespace core;
 
-use custom\pizzygoContext;
 use Exception;
 use mvc_framework\core\queues\classes\QueueReceiver;
 use mvc_framework\core\queues\classes\QueueSender;
@@ -94,10 +93,17 @@ class make extends cmd {
 		if($mysqlConf->has_property('db_prefix')) {
 			$db_prefix = $mysqlConf->get('db_prefix');
 		}
+		$logs = [];
 		foreach ($this->get_contexts() as $context) {
-			$context = $this->get_context('pizzygo', $db_prefix);
-			var_dump($context->users->entity());
+			$_context = $this->get_context($context, $db_prefix);
+			if($_context->create_database()) {
+				$logs[] = 'The database '.$_context->get_db_name(false).' has been installed with success !';
+			}
+			foreach ($_context->get_db_sets() as $property => $db_set) {
+				if($db_set->create_table()) {
+					$logs[] = 'The Table '.$db_set->get_table_name(false).' has been installed with success in database '.$_context->get_db_name(false);
+				}
+			}
 		}
-
 	}
 }

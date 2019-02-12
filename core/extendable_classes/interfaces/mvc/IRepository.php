@@ -5,7 +5,7 @@ namespace core;
 interface IRepository {
 	public function get_fields($except = []);
 
-	public function create_db();
+	public function create_table();
 
 	public function getAll();
 

@@ -56,9 +56,9 @@ class Repository extends Base implements IRepository {
 	 * @return bool
 	 * @throws Exception
 	 */
-	public function create_db() {
+	public function create_table() {
 		return $this->get_entity($this->table_name)
-					->create_db();
+					->create_table();
 	}
 
 	/**
@@ -216,7 +216,7 @@ class Repository extends Base implements IRepository {
 	 * @param bool $for_insert
 	 * @return string
 	 */
-	protected function get_table_name($for_insert = true) {
+	public function get_table_name($for_insert = true) {
 		$prefix = '';
 		if($this->mysql_conf->has_property('table-prefix')) {
 			$prefix = $this->mysql_conf->get('table-prefix');

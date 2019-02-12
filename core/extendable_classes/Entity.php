@@ -35,7 +35,7 @@ class Entity extends Base implements IEntity {
 	 * @return bool
 	 * @throws Exception
 	 */
-	public function create_db() {
+	public function create_table() {
 		$fields = $this->get_fields();
 		$request = 'CREATE TABLE IF NOT EXISTS '.$this->get_table_name().' (';
 		$max = count($fields);
