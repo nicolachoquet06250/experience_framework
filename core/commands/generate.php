@@ -16,7 +16,7 @@ class generate extends cmd {
 	 */
 	public function mvc() {
 
-		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_confs = External_confs::create();
 
 		$return = '';
 		if(!$this->has_arg('name')) {
@@ -59,7 +59,7 @@ class generate extends cmd {
 	 */
 	public function command() {
 
-		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_confs = External_confs::create();
 
 		$return = '';
 		if(!$this->has_arg('name')) {
@@ -84,7 +84,7 @@ class generate extends cmd {
 	 * @throws Exception
 	 */
 	public function repository() {
-		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_confs = External_confs::create();
 
 		$return = '';
 		if(!$this->has_arg('name')) {
@@ -217,7 +217,7 @@ class generate extends cmd {
 	 * @throws Exception
 	 */
 	public function service() {
-		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_confs = External_confs::create();
 
 		$return = '';
 		if(!$this->has_arg('name')) {

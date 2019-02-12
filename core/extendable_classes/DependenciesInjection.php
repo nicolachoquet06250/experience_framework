@@ -37,7 +37,7 @@ class DependenciesInjection {
 	 * @throws \Exception
 	 */
 	private static function common_execution($object, $method) {
-		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_confs = External_confs::create();
 		$ref_class             = new ReflectionClass(get_class($object));
 		$ref_method_parameters = [];
 		if($method !== '') {

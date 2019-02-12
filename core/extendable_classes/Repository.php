@@ -18,7 +18,7 @@ class Repository extends Base implements IRepository {
 	 * @throws Exception
 	 */
 	public function __construct() {
-		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_confs = External_confs::create();
 		$this->entity_class = get_class($this);
 		$this->entity_class = explode("\\", $this->entity_class)[count(explode("\\", $this->entity_class))-1];
 		$this->entity_class = str_replace(

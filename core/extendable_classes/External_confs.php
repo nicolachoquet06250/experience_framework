@@ -5,6 +5,7 @@ namespace core;
 use Exception;
 
 class External_confs {
+	private static $instance;
 	private $conf;
 
 	private static $DEFAULT_ROOT = 'custom';
@@ -24,10 +25,10 @@ class External_confs {
 	/**
 	 * External_confs constructor.
 	 *
-	 * @param $path
 	 * @throws Exception
 	 */
-	public function __construct($path) {
+	private function __construct() {
+		$path = __DIR__.'/../../external_confs/custom.json';
 		$file = explode('/', $path)[count(explode('/', $path))-1];
 		$dir = str_replace('/'.$file, '', $path);
 		if(!is_file($path)) {
@@ -60,6 +61,17 @@ class External_confs {
 ');
 		}
 		$this->conf = json_decode(file_get_contents($path), true);
+	}
+
+	/**
+	 * @return External_confs
+	 * @throws Exception
+	 */
+	public static function create() {
+		if(is_null(self::$instance)) {
+			self::$instance = new External_confs();
+		}
+		return self::$instance;
 	}
 
 	public function get_root_dir($custom = true) {

@@ -7,7 +7,7 @@ require_once __DIR__.'/extendable_classes/autoload.php';
 require_once __DIR__.'/mvc/models/BaseModel.php';
 
 
-$external_conf = new External_confs(__DIR__.'/../external_confs/custom.json');
+$external_conf = External_confs::create();
 
 if(is_file($external_conf->get_vendor_dir().'/autoload.php')) {
 	require_once $external_conf->get_vendor_dir().'/autoload.php';

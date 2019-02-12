@@ -16,7 +16,7 @@ class Setup extends Base implements ISetup {
 	 * @throws Exception
 	 */
 	public function __construct($controller) {
-		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_confs = External_confs::create();
 		if(is_file($external_confs->get_controllers_dir().'/'.ucfirst($controller).'Controller.php')) {
 			require_once $external_confs->get_controllers_dir().'/'.ucfirst($controller).'Controller.php';
 			$namespace = '\\'.$external_confs->get_git_repo()['directory'];

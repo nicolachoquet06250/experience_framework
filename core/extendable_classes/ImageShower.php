@@ -21,7 +21,7 @@ class ImageShower {
 	 * @throws Exception
 	 */
 	public function __construct() {
-		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_confs = External_confs::create();
 		if(is_file($external_confs->get_root_dir(false).'/'.$_GET['image'])) {
 			$this->path = $external_confs->get_root_dir(false).'/'.$_GET['image'];
 		}

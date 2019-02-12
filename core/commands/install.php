@@ -449,7 +449,7 @@ RewriteRule ^([a-zA-Z0-9\_\/]+\.jpg|jpeg|png|gif|svg)$    core/index.php?image=$
 		if(!is_dir(__DIR__.'/../../external_confs')) {
 			throw new Exception('Veuillez créer un fichier de configuration custom.json. Pour celà, lancez la commande `php builder.php make:custom_conf`');
 		}
-		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_conf = External_confs::create();
 		if(!is_dir(__DIR__.'/../../'.$external_conf->get_git_repo()['directory'])) {
 			echo 'Installation du repository git `'.$external_conf->get_git_repo()['repository'].'`'."\n";
 			exec($git_service->git_path().' clone '.$external_conf->get_git_repo()['repository'].' '.__DIR__.'/../../'.$external_conf->get_git_repo()['directory']);

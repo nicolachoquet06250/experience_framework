@@ -8,7 +8,7 @@ spl_autoload_register(function ($class) {
 	$_class = $class;
 	$class = explode('\\', $class)[count(explode('\\', $class))-1];
 
-	$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
+	$external_conf = External_confs::create();
 
 	$charge = [
 		'model' => 'models',

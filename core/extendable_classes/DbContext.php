@@ -44,7 +44,7 @@ class DbContext extends Base {
 	 * @throws Exception
 	 */
 	protected function init_database_name() {
-		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_confs = External_confs::create();
 		$this->database_name = str_replace(['Context', 'core\\', $external_confs->get_git_repo()['directory'].'\\'], '', get_class($this));
 		$this->database_name = strtolower($this->database_name);
 	}

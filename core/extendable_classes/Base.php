@@ -18,7 +18,7 @@ class Base implements IBase {
 	 * @throws Exception
 	 */
 	protected function get_controllers() {
-		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_conf = External_confs::create();
 		$directory = $external_conf->get_controllers_dir();
 		$dir = opendir($directory);
 		$controllers = [];
@@ -44,7 +44,7 @@ class Base implements IBase {
 	 * @throws Exception
 	 */
 	public function get_model(string $model) {
-		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_conf = External_confs::create();
 		$model = ucfirst($model).'Model';
 		if(file_exists($external_conf->get_models_dir().'/'.$model.'.php')) {
 			if(is_file($external_conf->get_models_dir(false).'/'.$model.'.php')) {
@@ -72,7 +72,7 @@ class Base implements IBase {
 	 * @throws Exception
 	 */
 	public function get_service(string $service) {
-		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_conf = External_confs::create();
 		$service = ucfirst($service).'Service';
 
 		if(file_exists($external_conf->get_services_dir().'/'.$service.'.php')) {
@@ -121,7 +121,7 @@ class Base implements IBase {
 	 * @throws Exception
 	 */
 	public function get_repository(string $repository) {
-		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_conf = External_confs::create();
 		$repository = ucfirst($repository).'Dao';
 		if (file_exists($external_conf->get_dao_dir().'/'.$repository.'.php')) {
 			require_once $external_conf->get_dao_dir().'/'.$repository.'.php';
@@ -138,7 +138,7 @@ class Base implements IBase {
 	 * @throws Exception
 	 */
 	public function get_entity(string $entity) {
-		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_conf = External_confs::create();
 		$entity = ucfirst($entity).'Entity';
 		if(file_exists($external_conf->get_entities_dir().'/'.$entity.'.php')) {
 			require_once $external_conf->get_entities_dir().'/'.$entity.'.php';
@@ -154,7 +154,7 @@ class Base implements IBase {
 	 * @throws Exception
 	 */
 	protected function get_entities() {
-		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_conf = External_confs::create();
 		$dir = opendir($external_conf->get_entities_dir());
 		$entities = [];
 		while (($elem = readdir($dir)) !== false) {
@@ -171,7 +171,7 @@ class Base implements IBase {
 	 * @throws Exception
 	 */
 	public function get_conf(string $conf) {
-		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_conf = External_confs::create();
 		$conf = ucfirst($conf).'Conf';
 		if(file_exists($external_conf->get_conf_dir().'/'.$conf.'.php')) {
 			if(!isset(self::$confs[$conf])) {
@@ -246,7 +246,7 @@ class Base implements IBase {
 	 * @throws Exception
 	 */
 	protected function get_contexts() {
-		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_conf = External_confs::create();
 		$directory = $external_conf->get_contexts_dir();
 		$dir = opendir($directory);
 		$contexts = [];
@@ -273,7 +273,7 @@ class Base implements IBase {
 	 * @throws Exception
 	 */
 	protected function get_context($context, $db_prefix = '') {
-		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_conf = External_confs::create();
 		$context = ucfirst($context).'Context';
 		if(is_file($external_conf->get_contexts_dir().'/'.$context.'.php')) {
 			require_once $external_conf->get_contexts_dir().'/'.$context.'.php';

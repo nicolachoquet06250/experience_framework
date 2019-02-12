@@ -19,7 +19,7 @@ class Command extends Base implements ICommand {
 	 * @throws \Exception
 	 */
 	public static function create($args) {
-		$external_confs = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_confs = External_confs::create();
 		if(count($args) > 0) {
 			if (strstr($args[0], ':')) {
 				$args[0] = explode(':', $args[0]);

@@ -146,7 +146,7 @@ HTML;
 		 * @throws \Exception
 		 */
 		private function generate_routes() {
-			$external_confs = new External_confs(__DIR__.'/../../../external_confs/custom.json');
+			$external_confs = External_confs::create();
 			/** @var OsService $service_os */
 			$service_os = $this->get_service('os');
 			$retour = $service_os->get_chariot_return();

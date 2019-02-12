@@ -14,7 +14,7 @@ class Response extends Base implements IResponse {
 	 * @throws \Exception
 	 */
 	public static function create($element, $type = self::JSON) {
-		$external_conf = new External_confs(__DIR__.'/../../external_confs/custom.json');
+		$external_conf = External_confs::create();
 		$response_class = ucfirst(explode('/', $type)[1]).'Response';
 		if(is_file(realpath($external_conf->get_responses_dir().'/'.$response_class.'.php'))) {
 			require_once realpath($external_conf->get_responses_dir().'/'.$response_class.'.php');
