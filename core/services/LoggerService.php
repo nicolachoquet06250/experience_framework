@@ -25,7 +25,7 @@ namespace core;
 
 		public function initialize_after_injection() {
 			$this->logger_callbacks[self::CONSOLE] = function ($message) {
-				var_dump($message, 'Je suis dans la console');
+				echo $this->get_log_header().' - '.$message."\n";
 			};
 
 			$this->logger_callbacks[self::MAIL.'_send'] = function ($message) {

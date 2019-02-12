@@ -106,4 +106,9 @@ class make extends cmd {
 			}
 		}
 	}
+
+	public function test_triggers() {
+		Trigger::create()->trig(TriggerConf::BeforeSendEmail, $this->get_service('logger'));
+		Trigger::create()->trig(TriggerConf::AfterSendEmail, $this->get_service('logger'));
+	}
 }

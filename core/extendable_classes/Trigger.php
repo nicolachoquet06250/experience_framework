@@ -27,6 +27,9 @@ class Trigger extends Base {
 
 		foreach ($this->items[$trigger_name] as $functions) {
 			foreach ($functions as $function) {
+				if(is_array($function)) {
+					$function = implode('::', $function);
+				}
 				$this->run_callback($function, $arg_list);
 			}
 		}

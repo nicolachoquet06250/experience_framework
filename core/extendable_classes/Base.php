@@ -238,7 +238,13 @@ class Base implements IBase {
 				$args[] = '$arg_list['.$key.']';
 			}
 		}
-		eval($function.'('.implode(', ', $args).');');
+		if(is_string($function)) {
+			eval($function.'('.implode(', ', $args).');');
+		}
+		elseif ($function instanceof \Closure) {
+			$args = empty($args) ? '' : ', '.implode(', ', $args);
+			eval('$function->call($this'.$args.');');
+		}
 	}
 
 	/**

@@ -5,6 +5,7 @@ require_once __DIR__.'/autoload.php';
 
 echo core\Router::create($_SERVER['REQUEST_URI'],
 	function (string $controller) {
+		(new \core\Base())->get_conf('trigger');
 		if(isset($_GET['image'])) (new core\ImageShower())->display();
 		if(isset($_GET['debug'])) {
 			ini_set('display_errors', 'on');
