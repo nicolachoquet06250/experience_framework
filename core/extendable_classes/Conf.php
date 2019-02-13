@@ -54,4 +54,20 @@ class Conf extends Base implements IConf {
 	public function has_property($key) {
 		return isset($this->conf[$key]);
 	}
+
+	public function __get($name) {
+		if(isset($this->conf[$name])) {
+			return $this->conf[$name];
+		}
+		return null;
+	}
+
+	/**
+	 * @param $name
+	 * @param $value
+	 * @throws Exception
+	 */
+	public function __set($name, $value) {
+		$this->set($name, $value);
+	}
 }

@@ -370,6 +370,9 @@ class install extends cmd {
 	private $htaccess = "Options +FollowSymlinks
 RewriteEngine On
 
+RewriteRule ^external_confs/*$                            core/index.php
+RewriteRule ^git_dependencies/*$                          core/index.php
+RewriteRule ^vendor/*$                                    core/index.php
 
 RewriteRule ^([a-zA-Z0-9\_]+)$                            core/index.php?controller=$1 [L]
 RewriteRule ^([a-zA-Z0-9\_]+)/([a-zA-Z0-9\_]+)$           core/index.php?controller=$1&action=$2 [L]
@@ -446,6 +449,11 @@ RewriteRule ^([a-zA-Z0-9\_\/]+\.jpg|jpeg|png|gif|svg)$    core/index.php?image=$
 	 * @throws Exception
 	 */
 	public function dependencies(\custom\DependenciesConf $dependencies, OsService $osService) {
+		AuthenticationKeys::create()
+						  ->set_base_key(self::$authentication_key)
+						  ->write_private_key_in_file()
+						  ->write_public_key_in_file();
+
 		if(!is_dir(__DIR__.'/../../external_confs')) {
 			throw new Exception('Veuillez créer un fichier de configuration custom.json. Pour celà, lancez la commande `php builder.php make:custom_conf`');
 		}

@@ -113,9 +113,6 @@ class External_confs {
 	}
 
 	public function get_services_dir($custom = true, $interface = false) {
-//		if(!realpath($this->get_root_dir($custom).'/'.(isset($this->conf['services']) ? $this->conf['services'] : self::$DEFAULT_SERVICES)).$this->get_interface_dir($interface)) {
-//			mkdir($this->get_root_dir($custom).'/'.(isset($this->conf['services']) ? $this->conf['services'] : self::$DEFAULT_SERVICES).$this->get_interface_dir($interface), 0777, true);
-//		}
 		return realpath($this->get_root_dir($custom).'/'.(isset($this->conf['services']) ? $this->conf['services'] : self::$DEFAULT_SERVICES)).$this->get_interface_dir($interface);
 	}
 
@@ -160,5 +157,9 @@ class External_confs {
 
 	public function get_contexts_dir($custom = true) {
 		return realpath($this->get_root_dir($custom).'/'.((isset($this->conf['contexts'])) ? $this->conf['contexts'] : self::$DEFAULT_CONTEXTS));
+	}
+
+	public function get_external_conf_dir() {
+		return realpath(__ROOT__.'/external_confs');
 	}
 }

@@ -9,6 +9,8 @@ class Base implements IBase {
 
 	private static $queues_loader;
 
+	public static $authentication_key = 'tresterrzegdghgdfdshdfhfshfshfs';
+
 	protected function active_depencency_injection() {
 		require_once __DIR__.'/autoload_for_dependencies_injection.php';
 	}
