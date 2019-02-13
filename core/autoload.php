@@ -14,12 +14,19 @@ if(is_file($external_conf->get_vendor_dir().'/autoload.php')) {
 
 foreach ($dependencies->get_all() as $dir => $dependency) {
 	$autoload = 'autoload.php';
+	$autoload_php = '';
 	if(is_array($dependency)) {
 		if(isset($dependency['autoloader'])) {
 			$autoload = $dependency['autoloader'];
 		}
+		if(isset($dependency['autoloader_php'])) {
+			$autoload_php = $dependency['autoloader_php'];
+		}
 	}
 	require_once $external_conf->get_git_dependencies_dir().'/'.$dir.'/'.$autoload;
+	if($autoload_php !== '') {
+		eval($autoload_php);
+	}
 }
 
 if(is_dir($external_conf->get_controllers_dir(false))) {
