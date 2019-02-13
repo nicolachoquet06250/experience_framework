@@ -445,18 +445,18 @@ RewriteRule ^([a-zA-Z0-9\_\/]+\.jpg|jpeg|png|gif|svg)$    core/index.php?image=$
 	/**
 	 * @throws Exception
 	 */
-	public function dependencies(\custom\DependenciesConf $dependencies, GitService $git_service, OsService $osService) {
+	public function dependencies(\custom\DependenciesConf $dependencies, OsService $osService) {
 		if(!is_dir(__DIR__.'/../../external_confs')) {
 			throw new Exception('Veuillez créer un fichier de configuration custom.json. Pour celà, lancez la commande `php builder.php make:custom_conf`');
 		}
 		$external_conf = External_confs::create();
 		if(!is_dir(__DIR__.'/../../'.$external_conf->get_git_repo()['directory'])) {
 			echo 'Installation du repository git `'.$external_conf->get_git_repo()['repository'].'`'."\n";
-			exec($git_service->git_path().' clone '.$external_conf->get_git_repo()['repository'].' '.__DIR__.'/../../'.$external_conf->get_git_repo()['directory']);
+			exec($osService->git_path().' clone '.$external_conf->get_git_repo()['repository'].' '.__DIR__.'/../../'.$external_conf->get_git_repo()['directory']);
 		}
 		else {
 			echo 'Mise à jour du repository git `'.$external_conf->get_git_repo()['directory'].'`'."\n";
-			exec('cd '.__DIR__.'/../../'.$external_conf->get_git_repo()['directory'].' && '.$git_service->git_path().' pull', $output);
+			exec('cd '.__DIR__.'/../../'.$external_conf->get_git_repo()['directory'].' && '.$osService->git_path().' pull', $output);
 			echo implode("\n", $output)."\n";
 		}
 		foreach ($dependencies->get_all() as $dir => $dependency) {
@@ -469,14 +469,14 @@ RewriteRule ^([a-zA-Z0-9\_\/]+\.jpg|jpeg|png|gif|svg)$    core/index.php?image=$
 			}
 			if(!is_dir(__DIR__.'/../../git_dependencies/'.$dir)) {
 				echo 'Installation du repository git `'.$dir.'`'."\n";
-				exec($git_service->git_path().' clone '.$dependency.' '.$external_conf->get_git_dependencies_dir().'/'.$dir);
+				exec($osService->git_path().' clone '.$dependency.' '.$external_conf->get_git_dependencies_dir().'/'.$dir);
 				if($_composer) {
 					exec('cd '.$external_conf->get_git_dependencies_dir().'/'.$dir.' && '.$osService->composer(false).' install');
 				}
 			}
 			else {
 				echo 'Mise à jour du repository git `'.$dir.'`'."\n";
-				exec('cd '.__DIR__.'/../../git_dependencies/'.$dir.' && '.$git_service->git_path().' pull', $output);
+				exec('cd '.__DIR__.'/../../git_dependencies/'.$dir.' && '.$osService->git_path().' pull', $output);
 				echo implode("\n", $output)."\n";
 			}
 		}
