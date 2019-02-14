@@ -23,7 +23,9 @@ foreach ($dependencies->get_all() as $dir => $dependency) {
 			$autoload_php = $dependency['autoloader_php'];
 		}
 	}
-	require_once $external_conf->get_git_dependencies_dir().'/'.$dir.'/'.$autoload;
+	if($autoload) {
+		require_once $external_conf->get_git_dependencies_dir().'/'.$dir.'/'.$autoload;
+	}
 	if($autoload_php !== '') {
 		eval($autoload_php);
 	}

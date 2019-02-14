@@ -3,6 +3,8 @@
 require_once __DIR__.'/interfaces/IBase.php';
 require_once __DIR__.'/Base.php';
 
+require_once __DIR__.'/Singleton.php';
+
 if(is_dir(__DIR__.'/interfaces')) {
 	$dir = opendir(__DIR__.'/interfaces');
 	while (($elem = readdir($dir)) !== false) {
