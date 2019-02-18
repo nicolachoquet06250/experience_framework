@@ -2,11 +2,6 @@
 
 namespace core;
 
-use custom\Local_storageService;
-use custom\RoleDao;
-use custom\RoleEntity;
-use custom\UserDao;
-use custom\UserEntity;
 use Exception;
 use ReflectionClass;
 use ReflectionException;
@@ -27,19 +22,32 @@ class help extends cmd {
 
 	/**
 	 * @throws ReflectionException
+	 * @throws Exception
 	 */
 	public function index(OsService $os_service) {
+		$external_confs = External_confs::create();
 		$retour = $os_service->get_chariot_return();
 		$prefix = $sufix = '  #####  ';
 		$header = $prefix.'HELP FOR COMMANDS'.$sufix;
 		$this->write_before_and_after_header($header, $retour);
 		$header_size = strlen($header);
 		echo "$header$retour";
+		$this->write_before_and_after_header($header, $retour);
 		if($this->has_arg('command')) {
-			$class_path = __DIR__.'/'.$this->get_arg('command').'.php';
-			if(is_file($class_path)) {
-				require_once $class_path;
-				$ref      = new ReflectionClass($this->get_arg('command'));
+			if(is_file($external_confs->get_commands_dir().'/'.$this->get_arg('command').'.php') || is_file($external_confs->get_commands_dir(false).'/'.$this->get_arg('command').'.php')) {
+				if(file_exists($external_confs->get_commands_dir().'/'.$this->get_arg('command').'.php')) {
+					$namespace = $external_confs->get_git_repo()['directory'].'\\';
+					require_once $external_confs->get_commands_dir(false).'/'.$this->get_arg('command').'.php';
+					require_once $external_confs->get_commands_dir().'/'.$this->get_arg('command').'.php';
+				}
+				elseif (file_exists($external_confs->get_commands_dir(false).'/'.$this->get_arg('command').'.php')) {
+					require_once $external_confs->get_commands_dir(false).'/'.$this->get_arg('command').'.php';
+					$namespace = 'core\\';
+				}
+				else {
+					$namespace = '\\';
+				}
+				$ref      = new ReflectionClass($namespace.$this->get_arg('command'));
 				$methods  = $ref->getMethods();
 				$_methods = [];
 				foreach ($methods as $method) {
@@ -162,87 +170,16 @@ class help extends cmd {
 	}
 
 	/**
-	 * @throws Exception
-	 */
-	public function create_user_with_role(UserDao $user_dao, RoleEntity $role) {
-		Command::create(['install:db', 'prefix=test_']);
-
-		// add user
-		$user = $user_dao->create(function(Base $object) {
-			$user = $object->get_entity('user');
-			return $user->initFromArray(
-				[
-					'name' => 'Nicolas',
-					'surname' => 'Choquet',
-					'address' => utf8_decode('1102 ch des primevères, 06250 Mougins'),
-					'email' => 'nicolachoquet06250@gmail.com',
-					'phone' => '',
-					'password' => sha1(sha1('2669NICOLAS21071995')),
-					'description' => '',
-					'profil_img' => '',
-					'premium' => false,
-					'active' => true,
-					'activate_token' => ''
-				]
-			);
-		});
-
-		// add role linked to the last created user
-		$role->initFromArray(
-			[
-				'role' => 'role_user',
-				'user_id' => $user->get('id'),
-			]
-		);
-		$role->save(false);
-	}
-
-	/**
-	 * @throws Exception
-	 */
-	public function to_array_for_json(UserEntity $user) {
-		$user->initFromArray(
-			[
-				'name' => 'Nicolas',
-				'surname' => 'Choquet',
-				'address' => utf8_decode('1102 ch des primevères, 06250 Mougins'),
-				'email' => 'nicolachoquet06250@gmail.com',
-				'phone' => '',
-				'password' => sha1(sha1('2669NICOLAS21071995')),
-				'description' => '',
-				'profil_img' => '',
-				'premium' => false,
-				'active' => true,
-				'activate_token' => ''
-			]
-		);
-		return $user->toArrayForJson();
-	}
-
-	/**
 	 * @return array
 	 * @throws Exception
 	 */
-	public function conf(mysqlConf $mysql_conf) {
+	public function conf(MysqlConf $mysql_conf) {
 		return [
 			$mysql_conf->get('host'),
 			$mysql_conf->get('user'),
 			$mysql_conf->get('password'),
 			$mysql_conf->get('database'),
 		];
-	}
-
-	/**
-	 * @throws Exception
-	 */
-	public function get_roles_by_user_id(RoleDao $dao) {
-		/** @var RoleEntity $roles */
-		$roles = $dao->getBy('user_id', 2);
-		/** @var RoleEntity $role */
-		foreach ($roles as $i => $role) {
-			$roles[$i] = $role->toArrayForJson();
-		}
-		return $roles;
 	}
 
 	public function forks() {
@@ -274,29 +211,5 @@ class help extends cmd {
 			while(pcntl_waitpid(0, $status) != -1);
 			echo "Do stuff after all parallel execution is complete.\n";
 		}
-	}
-
-	/**
-	 * @throws Exception
-	 */
-	public function test_user_dao(UserDao $user_dao) {
-		$user = $user_dao->getId_Name_Surname_Email_DescriptionByEmailAndPassword($this->get_arg('email'), sha1(sha1($this->get_arg('password'))));
-		if(is_array($user)) {
-			foreach ($user as $i => $_user)
-				$user[$i] = $_user->toArrayForJson();
-			return $user;
-		}
-		else return $user->toArrayForJson();
-	}
-
-	/**
-	 * @throws Exception
-	 */
-	public function update_structure(UserDao $user_dao) {
-		$user_dao->update_structure();
-	}
-
-	public function test_mkdir(Local_storageService $local_storageService) {
-		$local_storageService->mkdir(__DIR__.'/../../toto');
 	}
 }

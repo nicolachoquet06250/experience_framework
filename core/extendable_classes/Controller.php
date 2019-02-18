@@ -12,6 +12,9 @@ abstract class Controller extends Base implements IController {
 	/** @var ErrorController $http_error */
 	protected $http_error;
 
+	const API = 'api';
+	const WWW = 'www';
+
 	/**
 	 * Controller constructor.
 	 *
@@ -81,6 +84,51 @@ abstract class Controller extends Base implements IController {
 	 */
 	protected function get_error_controller(int $code) {
 		return new ErrorController('_'.$code, []);
+	}
+
+	private function api_sudomain() {
+		$domain = $_SERVER['HTTP_HOST'];
+		$domain = explode('.', $domain);
+		if(count($domain) === 3) {
+			$subdomain = $domain[0];
+			$domain    = $domain[1].'.'.$domain[2];
+		}
+		else {
+			$subdomain = null;
+			$domain = $domain[0].'.'.$domain[1];
+		}
+		if($subdomain === 'api' || $subdomain === 'ws') {
+			return [$subdomain, $domain];
+		}
+		return [$domain];
+	}
+
+	protected function get_base_url($type = self::API) {
+		$base = 'http://';
+		$api_sub_domain = $this->api_sudomain();
+		if(count($api_sub_domain) === 2) {
+			list(, $domain) = $api_sub_domain;
+			if($type === self::WWW) {
+				$base .= self::WWW;
+			}
+			else {
+				$base .= self::API;
+			}
+			$base .= '.'.$domain;
+		}
+		else {
+			list($domain) = $api_sub_domain;
+			$base .= $domain.($type === self::API ? '/api' : '');
+		}
+		return $base;
+	}
+
+	protected function get_base_url_api() {
+		return $this->get_base_url(self::API);
+	}
+
+	protected function get_base_url_www() {
+		return $this->get_base_url(self::WWW);
 	}
 
 	/**

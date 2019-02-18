@@ -1,15 +1,22 @@
 <?php
+
+use core\Base;
+use core\ImageShower;
+use core\Setup;
+
 header("Access-Control-Allow-Origin: *");
+
+//if(isset($_GET['debug'])) {
+ini_set('display_errors', 'on');
+//}
+
 require_once __DIR__.'/autoload.php';
 
-if(isset($_GET['debug'])) {
-	ini_set('display_errors', 'on');
-}
 echo core\Router::create($_SERVER['REQUEST_URI'],
 	function (string $controller) {
-		(new \core\Base())->get_conf('trigger');
-		if(isset($_GET['image'])) (new core\ImageShower())->display();
-		$setup = new core\Setup($controller);
+		(new Base())->get_conf('trigger');
+		if(isset($_GET['image'])) (new ImageShower())->display();
+		$setup = new Setup($controller);
 		$run = $setup->run();
 		return $run;
 	},

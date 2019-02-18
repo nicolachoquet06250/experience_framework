@@ -448,7 +448,7 @@ RewriteRule ^([a-zA-Z0-9\_\/]+\.jpg|jpeg|png|gif|svg)$    core/index.php?image=$
 	/**
 	 * @throws Exception
 	 */
-	public function dependencies(\custom\DependenciesConf $dependencies, OsService $osService) {
+	public function dependencies(DependenciesService $dependencies, OsService $osService) {
 		AuthenticationKeys::create()
 						  ->set_base_key(self::$authentication_key)
 						  ->write_private_key_in_file()
@@ -467,7 +467,7 @@ RewriteRule ^([a-zA-Z0-9\_\/]+\.jpg|jpeg|png|gif|svg)$    core/index.php?image=$
 			exec('cd '.__DIR__.'/../../'.$external_conf->get_git_repo()['directory'].' && '.$osService->git_path().' pull', $output);
 			echo implode("\n", $output)."\n";
 		}
-		foreach ($dependencies->get_all() as $dir => $dependency) {
+		foreach ($dependencies->get_dependencies() as $dir => $dependency) {
 			$_composer = false;
 			if(is_array($dependency)) {
 				if(isset($dependency['composer'])) {

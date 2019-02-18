@@ -26,7 +26,7 @@ class Router extends Base implements IRouter {
 	 * @return mixed
 	 * @throws Exception
 	 */
-	public static function create(string $uri, callable $callback, callable $catch) {
+	public static function create(string $uri, callable $callback, callable $catch = null) {
 		try {
 			$current_dir = basename(realpath(__DIR__.'/../../'));
 			if (substr($uri, 0, strlen('/'.$current_dir.'/index.php')) === '/'.$current_dir.'/index.php') {
