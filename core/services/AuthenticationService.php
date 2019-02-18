@@ -5,7 +5,6 @@ namespace core;
 
 
 
-use custom\UserEntity;
 use MiladRahimi\Jwt\Authentication\Authentication;
 use MiladRahimi\Jwt\Authentication\Subdomains;
 
