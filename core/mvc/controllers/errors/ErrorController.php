@@ -12,7 +12,7 @@ class ErrorController extends Controller {
 	 * @inheritdoc
 	 * @throws Exception
 	 */
-	protected function index() {
+	public function index() {
 		$this->write_header();
 		return $this->get_response(
 			[
@@ -32,6 +32,15 @@ class ErrorController extends Controller {
 	 */
 	public function _401() {
 		$this->code(401);
+		return $this->index();
+	}
+
+	/**
+	 * @return Response
+	 * @throws Exception
+	 */
+	public function _400() {
+		$this->code(400);
 		return $this->index();
 	}
 

@@ -2,7 +2,7 @@
 namespace core;
 
 interface IHttpService extends IService {
-	public function get($key = null);
+	public function get($key = null, $value = null);
 
 	public function post($key);
 

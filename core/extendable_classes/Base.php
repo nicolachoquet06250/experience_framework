@@ -296,5 +296,6 @@ class Base implements IBase {
 			$context = $namespace.$context;
 			return new $context($db_prefix);
 		}
+		throw new Exception('\'La classe '.$context.' n\'existe pas !');
 	}
 }

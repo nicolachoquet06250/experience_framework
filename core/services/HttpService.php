@@ -32,6 +32,7 @@ class HttpService extends Service implements IHttpService {
 		else {
 			$get = $_GET;
 		}
+		$_GET = $get;
 		$this->get = $get;
 		$this->post = $_POST;
 		$this->files = $_FILES;
@@ -42,13 +43,19 @@ class HttpService extends Service implements IHttpService {
 
 	/**
 	 * @param null|string $key
+	 * @param null $value
 	 * @return array|null|string
 	 */
-	public function get($key = null) {
-		if(is_null($key)) {
-			return $this->get;
+	public function get($key = null, $value = null) {
+		if(is_null($value)) {
+			if (is_null($key)) {
+				return $this->get;
+			}
+			return isset($this->get[$key]) && $this->get[$key] !== '' ? $this->get[$key] : null;
 		}
-		return isset($this->get[$key]) && $this->get[$key] !== '' ? $this->get[$key] : null;
+		$this->get[$key] = $value;
+		$_GET[$key] = $value;
+		return $value;
 	}
 
 	/**

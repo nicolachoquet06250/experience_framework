@@ -38,4 +38,15 @@ class Helpers {
 		}
 	}
 
+	public static function var_dump(...$mixed) {
+		$string = '';
+		foreach ($mixed as $elem) {
+			ob_start();
+			var_dump($elem);
+			$string .= ob_get_contents();
+			ob_clean();
+		}
+		return $string;
+	}
+
 }
