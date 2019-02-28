@@ -4,6 +4,7 @@ namespace core;
 
 use Exception;
 use MiladRahimi\Jwt\Authentication\Subdomains;
+use ReflectionClass;
 
 abstract class Controller extends Base implements IController {
 	private $method;
@@ -41,6 +42,66 @@ abstract class Controller extends Base implements IController {
 	}
 
 	/**
+	 * @param null|string $role
+	 * @return bool|ErrorController
+	 * @throws Exception
+	 */
+	private function run_if_authenticated() {
+		$role = null;
+
+		$ref = new ReflectionClass(get_class($this));
+		if($ref->hasMethod($this->get_action())) {
+			$action_doc = $ref->getMethod($this->get_action())->getDocComment();
+			$auth_activated = false;
+
+			if (preg_match('`@[A|a]uthenticated(\(([a-zA-Z0-9\_\,\ ]+)\))?`', $action_doc, $matches)) {
+				$auth_activated = true;
+				if (isset($matches[2])) {
+					$role = $matches[2];
+					if(preg_match('`\,\ `', $role, $_matches)) {
+						$role = explode(', ', $role);
+					}
+				}
+			}
+
+			if (!AuthenticationService::is_logged() && !FacebookService::is_logged() && $auth_activated) {
+				$this->http_error = $this->NOT_AUTHENTICATED_USER('You must be authenticated'.(!is_null($role) ? ' on '.(is_array($role) ? implode(' or ', $role) : $role).' role' : ''));
+				return false;
+			}
+
+			if(AuthenticationService::is_logged()) {
+				/** @var AuthenticationService $authService */
+				$authService = $this->get_service('authentication');
+			}
+			elseif(FacebookService::is_logged()) {
+				/** @var FacebookService $authService */
+				$authService = $this->get_service('facebook');
+			}
+			if(isset($authService)) {
+				if(is_array($role)) {
+					foreach ($role as $_role) {
+						if ($authService->get_role() === $_role) {
+							return true;
+						}
+					}
+				}
+				else {
+					if ($authService->get_role() === $role) {
+						return true;
+					}
+				}
+			}
+			if($auth_activated) {
+				$this->http_error = $this->NOT_AUTHENTICATED_USER('You must be authenticated'.(!is_null($role) ? ' on '.(is_array($role) ? implode(' or ', $role) : $role).' role' : ''));
+				return false;
+			}
+			return true;
+		}
+		$this->http_error = $this->PAGE_NOT_FOUND('Controller not found');
+		return false;
+	}
+
+	/**
 	 * Controller constructor.
 	 *
 	 * @param $action
@@ -58,6 +119,8 @@ abstract class Controller extends Base implements IController {
 		if(in_array($action, $class_methods)) {
 			$this->method = $action;
 			$this->params = $params;
+
+			$this->run_if_authenticated();
 		}
 		else $this->http_error = $this->PAGE_NOT_FOUND(get_class($this).'::'.$action.'() method not found !');
 
@@ -107,15 +170,6 @@ abstract class Controller extends Base implements IController {
 	 */
 	protected function files($key = null) {
 		return $this->http_service->files($key);
-	}
-
-	/**
-	 * @param int $code
-	 * @return ErrorController
-	 * @throws Exception
-	 */
-	protected function get_error_controller(int $code) {
-		return new ErrorController('_'.$code, []);
 	}
 
 	private function api_sub_domain() {
@@ -174,66 +228,115 @@ abstract class Controller extends Base implements IController {
 	}
 
 	/**
-	 * @param $message
-	 * @return ErrorController
+	 * @param        $message
+	 * @param string $format
+	 * @return Response|void
 	 * @throws Exception
 	 */
-	protected function BAD_REQUEST($message) {
-		return $this->get_error_controller(400)->message($message);
+	protected function BAD_REQUEST($message, $format = Response::JSON) {
+		header('HTTP/1.0 400'.$message);
+		return $this->get_response(
+			[
+				'code' => 400,
+				'message' => $message,
+			]
+		);
 	}
 
 	/**
-	 * @param $message
-	 * @return ErrorController
+	 * @param        $message
+	 * @param string $format
+	 * @return Response
 	 * @throws Exception
 	 */
-	protected function FORBIDDEN($message) {
-		return $this->get_error_controller(403)->message($message);
+	protected function FORBIDDEN($message, $format = Response::JSON) {
+		header('HTTP/1.0 403'.$message);
+		return $this->get_response(
+			[
+				'code' => 403,
+				'message' => $message,
+			]
+		);
 	}
 
 	/**
-	 * @param $message
-	 * @return ErrorController
+	 * @param        $message
+	 * @param string $format
+	 * @return Response
 	 * @throws Exception
 	 */
-	protected function NOT_AUTHENTICATED_USER($message) {
-		return $this->get_error_controller(401)->message($message);
+	protected function NOT_AUTHENTICATED_USER($message, $format = Response::JSON) {
+		header('HTTP/1.0 401'.$message);
+		return $this->get_response(
+			[
+				'code' => 401,
+				'message' => $message,
+			]
+		);
 	}
 
 	/**
-	 * @param $message
-	 * @return ErrorController
+	 * @param        $message
+	 * @param string $format
+	 * @return Response
 	 * @throws Exception
 	 */
-	protected function PAGE_NOT_FOUND($message) {
-		return $this->get_error_controller(404)->message($message);
+	protected function PAGE_NOT_FOUND($message, $format = Response::JSON) {
+		header('HTTP/1.0 404'.$message);
+		return $this->get_response(
+			[
+				'code' => 404,
+				'message' => $message,
+			]
+		);
 	}
 
 	/**
-	 * @param $message
-	 * @return ErrorController
+	 * @param        $message
+	 * @param string $format
+	 * @return Response
 	 * @throws Exception
 	 */
-	protected function INTERNAL_ERROR($message) {
-		return $this->get_error_controller(500)->message($message);
+	protected function INTERNAL_ERROR($message, $format = Response::JSON) {
+		header('HTTP/1.0 500'.$message);
+		return $this->get_response(
+			[
+				'code' => 500,
+				'message' => $message,
+			]
+		);
 	}
 
 	/**
-	 * @param $message
-	 * @return ErrorController
+	 * @param        $message
+	 * @param string $format
+	 * @return Response
 	 * @throws Exception
 	 */
-	protected function SERVER_ERROR($message) {
-		return $this->get_error_controller(503)->message($message);
+	protected function SERVER_ERROR($message, $format = Response::JSON) {
+		header('HTTP/1.0 503'.$message);
+		return $this->get_response(
+			[
+				'code' => 503,
+				'message' => $message,
+			]
+		);
 	}
 
 	/**
-	 * @param $message
-	 * @return ErrorController
+	 * @param        $message
+	 * @param string $format
+	 * @return Response
 	 * @throws Exception
 	 */
-	protected function SERVER_NOT_RESPOND($message) {
-		return $this->get_error_controller(504)->message($message);
+	protected function SERVER_NOT_RESPOND($message, $format = Response::JSON) {
+		header('HTTP/1.0 504'.$message);
+		return $this->get_response(
+			[
+				'code' => 504,
+				'message' => $message,
+			]
+		);
 	}
 
 	/**

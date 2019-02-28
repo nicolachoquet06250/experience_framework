@@ -22,7 +22,7 @@ class AuthController extends Controller {
 	 * @return Response
 	 * @throws Exception
 	 */
-	public function index(AuthenticationService $authenticationService = null, CookieService $cookieService = null, SessionService $sessionService = null, UrlsService $urlsService = null): JsonResponse {
+	public function index(AuthenticationService $authenticationService = null, CookieService $cookieService = null, SessionService $sessionService = null, UrlsService $urlsService = null): Response {
 		if(!AuthenticationService::is_logged()) {
 			$urlsService->set_api_subdomain()
 						->set_controller($this->get_alias())->set_action('callback');
@@ -161,7 +161,7 @@ class AuthController extends Controller {
 		return $this->OK(
 			[
 				'logged' => true,
-				'user' => array_values((array)$me)[0],
+				'user' => $me,
 				'logout_url' => $urlsService->get()
 			]
 		);
@@ -236,7 +236,7 @@ class AuthController extends Controller {
 		return $this->OK(
 			[
 				'logged' => true,
-				'user' => array_values((array)$me)[0],
+				'user' => $me,
 				'logout_url' => $urlsService->get(),
 				'home_url' => $home_url,
 			]
@@ -254,5 +254,23 @@ class AuthController extends Controller {
 			$this->get('referer', $urlsService->set_api_subdomain()->set_controller('home')->set_action('login_fb')->get());
 		}
 		$this->PERMANENTLY_REDIRECT($this->get_referer(), 'Redirect to '.$this->get_referer());
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function test_if_is_auth(AuthenticationService $authenticationService, FacebookService $facebookService) {
+		if(!AuthenticationService::is_logged() && !FacebookService::is_logged()) {
+			return $this->NOT_AUTHENTICATED_USER('You are not logged');
+		}
+		$authService = FacebookService::is_logged() ? $facebookService : $authenticationService;
+		$accessToken = FacebookService::is_logged() ? FacebookService::get_access_token_from_storage() : AuthenticationService::get_access_token_from_storage();
+		$me = $authService->get_user((string)$accessToken, $this->fb_permissions);
+		return $this->OK(
+			[
+				'logged' => true,
+				'user' => $me,
+			]
+		);
 	}
 }

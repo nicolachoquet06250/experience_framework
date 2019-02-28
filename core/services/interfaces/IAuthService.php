@@ -28,6 +28,10 @@ interface IAuthService extends IService {
 
 	public function get_secret();
 
+	public function get_role();
+
+	public function has_access_to($access_id);
+
 	public static function unset_access_token_from_storage($domain);
 
 	public static function get_access_token_from_storage();

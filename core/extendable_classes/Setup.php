@@ -17,6 +17,7 @@ class Setup extends Base implements ISetup {
 	 */
 	public function __construct($controller) {
 		$external_confs = External_confs::create();
+		$namespace = '\\core';
 		if(is_file($external_confs->get_controllers_dir().'/'.ucfirst($controller).'Controller.php')) {
 			require_once $external_confs->get_controllers_dir().'/'.ucfirst($controller).'Controller.php';
 			$namespace = '\\'.$external_confs->get_git_repo()['directory'];
@@ -42,8 +43,6 @@ class Setup extends Base implements ISetup {
 		$controller = ucfirst($this->controller).'Controller';
 		if(isset($_GET['action'])) {
 			$action = $_GET['action'];
-			// Supprime de la mémoire les paramètres GET pour récupérer uniquement
-			// les paramètres voulus et ne pas avoir le nom de mon controlleur et de ma méthode.
 			unset($_GET['action']);
 		}
 		else {

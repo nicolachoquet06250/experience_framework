@@ -343,4 +343,12 @@ class AuthenticationService extends Service implements IAuthenticationService {
 		self::$cookieService->remove(self::$exp_frm_storage_key, $domain);
 		self::$sessionService->remove(self::$exp_frm_storage_key);
 	}
+
+	public function get_role() {
+		return 'admin';
+	}
+
+	public function has_access_to($access_id) {
+		return true;
+	}
 }

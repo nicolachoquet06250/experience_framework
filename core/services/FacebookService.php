@@ -204,7 +204,10 @@ class FacebookService extends Service implements IFacebookService {
 	 * @throws FacebookSDKException
 	 */
 	public function get_user($access_token, $fields = []) {
-		return $this->get_response_for_me($access_token, $fields)->getGraphUser();
+		$user = $this->get_response_for_me($access_token, $fields)->getGraphUser();
+		$user = (array)$user;
+		$user = array_values($user)[0];
+		return $user;
 	}
 
 	/**
@@ -285,5 +288,13 @@ class FacebookService extends Service implements IFacebookService {
 	 */
 	public function get_secret() {
 		return $this->secret;
+	}
+
+	public function get_role() {
+		return 'user';
+	}
+
+	public function has_access_to($access_id) {
+		return true;
 	}
 }
