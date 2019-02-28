@@ -204,15 +204,8 @@ class AuthController extends Controller {
 		// The OAuth 2.0 client handler helps us manage access tokens
 		$oAuth2Client = $facebookService->get_oauth_client();
 
-		// Get the access token metadata from /debug_token
-//		$tokenMetadata = $oAuth2Client->debugToken($accessToken);
-
 		// Validation (these will throw FacebookSDKException's when they fail)
 		FacebookService::validate($accessToken, $facebookService->get_application_id());
-//		$tokenMetadata->validateAppId($facebookService->get_application_id());
-		// If you know the user ID this access token belongs to, you can validate it here
-		//$tokenMetadata->validateUserId('123');
-//		$tokenMetadata->validateExpiration();
 
 		if (!$accessToken->isLongLived()) {
 			// Exchanges a short-lived access token for a long-lived one
