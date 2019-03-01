@@ -256,9 +256,8 @@ class Base implements IBase {
 	protected function get_contexts() {
 		$external_conf = External_confs::create();
 		$directory = $external_conf->get_contexts_dir();
-		$dir = opendir($directory);
 		$contexts = [];
-
+		$dir = opendir($directory);
 		while (($elem = readdir($dir)) !== false) {
 			if($elem !== '.' && $elem !== '..') {
 				$contexts[] = strtolower(str_replace(['\\'.$external_conf->get_git_repo()['directory'].'\\', 'Context.php'], '', $elem));
@@ -266,10 +265,12 @@ class Base implements IBase {
 		}
 
 		$directory = $external_conf->get_contexts_dir(false);
-		$dir = opendir($directory);
-		while (($elem = readdir($dir)) !== false) {
-			if($elem !== '.' && $elem !== '..') {
-				$contexts[] = strtolower(str_replace(['\\core\\', 'Context.php'], '', $elem));
+		if($directory) {
+			$dir = opendir($directory);
+			while (($elem = readdir($dir)) !== false) {
+				if ($elem !== '.' && $elem !== '..') {
+					$contexts[] = strtolower(str_replace(['\\core\\', 'Context.php'], '', $elem));
+				}
 			}
 		}
 		return $contexts;

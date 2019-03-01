@@ -6,9 +6,13 @@ namespace core;
 
 
 use Closure;
+use custom\UserDao;
 use Exception;
 use MiladRahimi\Jwt\Authentication\Authentication;
 use MiladRahimi\Jwt\Authentication\Subdomains;
+use MiladRahimi\Jwt\Claims\JWTClaims;
+use MiladRahimi\Jwt\Enums\PublicClaimNames;
+use MiladRahimi\Jwt\JwtParser;
 
 class AuthenticationService extends Service implements IAuthenticationService {
 
@@ -224,8 +228,22 @@ class AuthenticationService extends Service implements IAuthenticationService {
 		return $urlsService->set_api_subdomain()->set_controller('auth')->set_action('auth')->set_arg('client_id', base64_encode($this->get_application_id()))->set_arg('response_type', 'code')->set_referer($url)->get();
 	}
 
+	/**
+	 * @param       $access_token
+	 * @param array $fields
+	 * @return array
+	 * @throws Exception
+	 */
 	public function get_response_for_me($access_token, $fields = []) {
-		$me = self::get_test_user($access_token);
+		if(JWTClaims::create()->isEmpty()) {
+			$claims = JWTClaims::create()->init_with_token($access_token);
+		}
+		else {
+			$claims = JWTClaims::create()->get();
+		}
+		$user_id = $claims[PublicClaimNames::ID];
+		$userDao = $this->get_dao('user');
+		$me = $userDao->getById($user_id)->toArrayForJson();
 		$_me = [];
 		foreach ($fields as $field) {
 			if(in_array($field, array_keys($me))) {
@@ -235,6 +253,12 @@ class AuthenticationService extends Service implements IAuthenticationService {
 		return $_me;
 	}
 
+	/**
+	 * @param       $access_token
+	 * @param array $fields
+	 * @return array
+	 * @throws Exception
+	 */
 	public function get_user($access_token, $fields = []) {
 		return $this->get_response_for_me($access_token, $fields);
 	}

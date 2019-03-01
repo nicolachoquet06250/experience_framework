@@ -4,17 +4,31 @@
 namespace core;
 
 
+use custom\UserDao;
 use Exception;
 use Facebook\Authentication\AccessToken;
 use Facebook\Exceptions\FacebookSDKException;
+use MiladRahimi\Jwt\Claims\JWTClaims;
 use MiladRahimi\Jwt\Enums\PublicClaimNames;
 
 class AuthController extends Controller {
 
 	private $fb_permissions = [
 		'email', 'id',
-		'first_name', 'last_name'
+		'first_name', 'last_name',
 	];
+
+	protected $local_permissions = [
+		'email', 'id',
+		'first_name', 'last_name',
+	];
+
+	protected $subject = 'authentication';
+	protected $audience = 'experience_framework';
+	protected $issuer = 'user_id';
+	protected $user_id = 0;
+	protected $email;
+	protected $passwd;
 
 	// LOGIN WITH PIZZYGO IN CORE
 
@@ -29,16 +43,25 @@ class AuthController extends Controller {
 
 			$loginUrl = $authenticationService->get_login_url($urlsService->get());
 
+			$urlsService->init_url($loginUrl);
+
+			if($this->email) {
+				$urlsService->set_arg('email', $this->email);
+			}
+			if($this->passwd) {
+				$urlsService->set_arg('password', sha1(sha1($this->passwd)));
+			}
+
 			return $this->OK(
 				[
 					'logged' => false,
-					'login_url' => $loginUrl,
+					'login_url' => $urlsService->get(),
 				]
 			);
 		}
 
 		$access_token = AuthenticationService::get_access_token_from_storage();
-		$me = $authenticationService->get_user($access_token, $this->fb_permissions);
+		$me = $authenticationService->get_user($access_token, $this->local_permissions);
 
 		$referer_url = $urlsService->set_api_subdomain()->set_controller($this->get_alias())->get();
 
@@ -58,14 +81,14 @@ class AuthController extends Controller {
 	 */
 	public function auth(AuthenticationService $authenticationService, UrlsService $urlsService) {
 		$authenticationService
-			->add_claim(PublicClaimNames::SUBJECT, 'authentication')
-			->add_claim(PublicClaimNames::ID, 1102)
-			->add_claim(PublicClaimNames::ISSUER, 'user_id')
-			->add_claim(PublicClaimNames::AUDIENCE, 'experience framework');
+			->add_claim(PublicClaimNames::SUBJECT, $this->subject)
+			->add_claim(PublicClaimNames::ID, $this->user_id)
+			->add_claim(PublicClaimNames::ISSUER, $this->issuer)
+			->add_claim(PublicClaimNames::AUDIENCE, $this->audience);
 
-		$urlsService->init_url($this->get_referer())->set_arg('code', $authenticationService->get_token());
+		$urlsService->init_url($this->get_referer())->set_arg('code', $authenticationService->get_token())->set_arg('user_id', base64_encode(decbin($this->user_id)));
 
-		$this->PERMANENTLY_REDIRECT($urlsService->get());
+		return $this->PERMANENTLY_REDIRECT($urlsService->get());
 	}
 
 	/**
@@ -73,10 +96,13 @@ class AuthController extends Controller {
 	 * @throws Exception
 	 */
 	public function callback(AuthenticationService $authenticationService, UrlsService $urlsService) {
+		$this->user_id = bindec(base64_decode($this->get('user_id')));
 		$authenticationService
-			->add_claim(PublicClaimNames::SUBJECT, 'authentication')
-			->add_claim(PublicClaimNames::ISSUER, 'user_id')
-			->add_claim(PublicClaimNames::AUDIENCE, 'experience framework');
+			->add_claim(PublicClaimNames::SUBJECT, $this->subject)
+			->add_claim(PublicClaimNames::ID, $this->user_id)
+			->add_claim(PublicClaimNames::ISSUER, $this->issuer)
+			->add_claim(PublicClaimNames::AUDIENCE, $this->audience);
+
 
 		$access_token = AuthenticationService::is_logged()
 			? AuthenticationService::get_access_token_from_storage() : $authenticationService->get_token();
@@ -95,7 +121,7 @@ class AuthController extends Controller {
 
 		$home_url = $urlsService->set_api_subdomain()->set_controller($this->get_alias())->get();
 
-		$me = $authenticationService->get_user($access_token, $this->fb_permissions);
+		$me = $authenticationService->get_user($access_token, $this->local_permissions);
 
 		$referer_url = $urlsService->set_api_subdomain()->set_controller($this->get_alias())->get();
 		$urlsService->set_api_subdomain()->set_controller($this->get_alias())->set_action('logout')->set_referer($referer_url);

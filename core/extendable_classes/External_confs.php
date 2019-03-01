@@ -21,6 +21,7 @@ class External_confs {
 	private static $DEFAULT_UPLOADS_PROFIL = 'uploads/profil';
 	private static $DEFAULT_UPLOADS_LOADER = 'uploads/loaders';
 	private static $DEFAULT_COMMANDS = 'commands';
+	private static $DEFAULT_CONTEXTS = 'contexts';
 
 	/**
 	 * External_confs constructor.

@@ -27,7 +27,9 @@ class Entity extends Base implements IEntity {
 		/** @var MysqlService $mysql_service */
 		$mysql_service = $this->get_service('mysql');
 		$this->mysql = $mysql_service->get_connector();
-		$this->table_name = strtolower(str_replace('Entity', '', get_class($this)));
+		$this->table_name = get_class($this);
+		$this->table_name = basename(str_replace('\\', '/', $this->table_name));
+		$this->table_name = strtolower(str_replace('Entity', '', $this->table_name));
 		$this->mysql_conf = $this->get_conf('mysql');
 	}
 
@@ -133,7 +135,7 @@ class Entity extends Base implements IEntity {
 		$ref = new ReflectionClass(get_class($this));
 		$props = $ref->getProperties();
 		foreach ($props as $prop) {
-			if($prop->class !== Entity::class) {
+			if($prop->class !== Entity::class && $prop->class !== Base::class) {
 				$doc_comment = $prop->getDocComment();
 				$doc_comment = str_replace(['/**'."\n", '/**'."\r", '*/', "\t", ' * '], '', $doc_comment);
 				$doc_comment = substr($doc_comment, 0, strlen($doc_comment)-2);

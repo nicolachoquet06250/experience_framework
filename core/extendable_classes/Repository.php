@@ -142,11 +142,10 @@ class Repository extends Base implements IRepository {
 					  ->query('SELECT * FROM '.$this->get_table_name().' WHERE `'.$field.'`='
 							  .(gettype($value) === 'string' ? '"'.$value.'"' : $value));
 		$entities = [];
-		$entity_class = $this->entity_class;
 		if($query) {
 			while ($entity = $query->fetch_assoc()) {
 				/** @var Entity $_entity */
-				$_entity = new $entity_class();
+				$_entity = $this->entity();
 				foreach ($entity as $key => $value) {
 					$_entity->set($key, $value);
 				}
@@ -255,14 +254,14 @@ class Repository extends Base implements IRepository {
 	 */
 	public function update_structure() {
 		// in database
-		$columns_names = array_keys($this->get_columns());
 		$columns = $this->get_columns();
-		// in entity
-		$properties = $this->get_entity($this->table_name)->get_fields();
+		$table_columns_names = array_keys($columns);
 
+		// in entity
+		$entity_properties = $this->get_entity($this->table_name)->get_fields();
 		$to_add = [];
-		foreach ($properties as $property_name => $property_detail) {
-			if(!in_array($property_name, $columns_names)) {
+		foreach ($entity_properties as $property_name => $property_detail) {
+			if(!in_array($property_name, $table_columns_names)) {
 				$to_add[] = $property_name;
 			}
 		}
@@ -270,33 +269,84 @@ class Repository extends Base implements IRepository {
 		$request_add = 'ALTER TABLE '.$this->get_table_name();
 		$max = count($to_add);
 		$i = 0;
-		$last_item = $columns_names[count($columns)-1];
-		foreach ($to_add as $item) {
-			$detail = $this->get_fields()[$item];
-			if(!isset($details['in_table'])) {
-				$request_add .= ' ADD `'.$item.'` ';
-				$size = null;
-				if ($detail['type'] === 'int' || $detail['type'] === 'float') $size = 11;
-				elseif (isset($detail['sql']['type']) && isset($detail['sql']['size'])) $size = $detail['sql']['size'];
-				$request_add .= strtoupper((isset($detail['sql']['type']) ? $detail['sql']['type'] : $detail['type'])).($size ? '('.$size.')' : '').' '.
-							(!$detail['sql']['nullable'] ? 'NOT NULL' : '');
-				if (isset($details['key']) && $detail['key'] === 'primary') {
-					$request_add .= 'AUTO_INCREMENT PRIMARY KEY';
-				}
-				$request_add .= ' AFTER `'.$last_item.'`';
-				$last_item = $item;
-				$i++;
-				if ($i < $max) {
-					$request_add .= ',';
+		$last_item = $table_columns_names[count($columns)-1];
+		$add_result = null;
+		if(!empty($to_add)) {
+			foreach ($to_add as $item) {
+				$detail = $this->get_fields()[$item];
+				if (!isset($details['in_table'])) {
+					$request_add .= ' ADD `'.$item.'` ';
+					$size        = null;
+					if ($detail['type'] === 'int' || $detail['type'] === 'float')
+						$size = 11;
+					elseif (isset($detail['sql']['type']) && isset($detail['sql']['size']))
+						$size = $detail['sql']['size'];
+					$request_add .= strtoupper((isset($detail['sql']['type']) ? $detail['sql']['type'] : $detail['type'])).($size ? '('.$size.')' : '').' '.
+									(!$detail['sql']['nullable'] ? 'NOT NULL' : '');
+					if (isset($details['key']) && $detail['key'] === 'primary') {
+						$request_add .= 'AUTO_INCREMENT PRIMARY KEY';
+					}
+					$request_add .= ' AFTER `'.$last_item.'`';
+					$last_item   = $item;
+					$i++;
+					if ($i < $max) {
+						$request_add .= ',';
+					}
 				}
 			}
+			$add_result = $this->get_mysql()->query($request_add);
 		}
-		$this->get_mysql()->query($request_add);
+
+		$columns = $this->get_columns();
+		$table_columns_names = array_keys($columns);
+
+		// in entity
+		$entity_properties = $this->get_entity($this->table_name)->get_fields();
+
+		$request_delete = 'ALTER TABLE '.$this->get_table_name();
+
+		$to_delete = [];
+		foreach ($table_columns_names as $table_column_name) {
+			if(!in_array($table_column_name, array_keys($entity_properties))) {
+				$to_delete[] = $table_column_name;
+			}
+		}
+
+
+		$max = count($to_delete);
+		$i = 0;
+		$delete_result = null;
+		if(!empty($to_delete)) {
+			foreach ($to_delete as $item) {
+				$request_delete .= ' DROP COLUMN `'.$item.'`';
+
+				$i++;
+				if ($i < $max) {
+					$request_delete .= ',';
+				}
+			}
+			$delete_result = $this->get_mysql()->query($request_delete);
+		}
+
+		if(is_null($add_result)) {
+			$nb_add = 0;
+		}
+		else {
+			$nb_add = $add_result ? count($to_add) : -1;
+		}
+
+		if(is_null($delete_result)) {
+			$nb_delete = 0;
+		}
+		else {
+			$nb_delete = $delete_result ? count($to_delete) : -1;
+		}
+
 
 //		$request_update = 'ALTER TABLE '.$this->get_table_name();
 //
 //		$to_update = [];
-//		foreach ($properties as $property_name => $property_detail) {
+//		foreach ($entity_properties as $property_name => $property_detail) {
 //			$columns_detail = $columns[$property_name];
 //
 //			$nullable = !(isset($columns_detail['null']) && $columns_detail['null'] === 'NO');
@@ -342,6 +392,10 @@ class Repository extends Base implements IRepository {
 //		}
 //		var_dump($to_update);
 
+		return [
+			'nb_add' => $nb_add,
+			'nb_delete' => $nb_delete
+		];
 	}
 
 	/**

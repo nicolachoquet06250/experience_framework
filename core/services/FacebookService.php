@@ -4,6 +4,8 @@
 namespace core;
 
 
+use custom\UserDao;
+use custom\UserEntity;
 use Exception;
 use Facebook\Authentication\AccessToken;
 use Facebook\Authentication\OAuth2Client;
@@ -198,16 +200,28 @@ class FacebookService extends Service implements IFacebookService {
 	}
 
 	/**
-	 * @param $access_token
+	 * @param       $access_token
 	 * @param array $fields
-	 * @return FacebookResponse|GraphUser
+	 * @return array|bool
 	 * @throws FacebookSDKException
+	 * @throws Exception
 	 */
 	public function get_user($access_token, $fields = []) {
 		$user = $this->get_response_for_me($access_token, $fields)->getGraphUser();
 		$user = (array)$user;
 		$user = array_values($user)[0];
-		return $user;
+		/** @var UserDao $userDao */
+		$userDao = $this->get_dao('user');
+		$_user = $userDao->getBy('email', $user['email']);
+		if($_user) {
+			/** @var UserEntity $_user */
+			$_user = $_user[0];
+			if(!$_user->get('fb_id')) {
+				$_user->set('fb_id', $user['id']);
+				$_user->save();
+			}
+		}
+		return $_user;
 	}
 
 	/**

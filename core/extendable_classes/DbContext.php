@@ -5,6 +5,7 @@ namespace core;
 
 use Exception;
 use mysqli;
+use mysqli_result;
 use ReflectionClass;
 use ReflectionException;
 
@@ -35,14 +36,16 @@ class DbContext extends Base {
 	}
 
 	/**
-	 * @throws \ReflectionException
+	 * @throws ReflectionException
 	 */
 	protected function init_db_sets() {
 		$ref_class = new ReflectionClass(get_class($this));
 		foreach ($ref_class->getProperties() as $property => $detail) {
 			if($detail->class !== DbContext::class) {
 				$prop = $detail->getName();
-				$this->db_sets[$detail->getName()] = $this->$prop;
+				if(!is_null($this->$prop)) {
+					$this->db_sets[$detail->getName()] = $this->$prop;
+				}
 			}
 		}
 	}
@@ -79,10 +82,27 @@ class DbContext extends Base {
 		return $this->db_sets;
 	}
 
+	/**
+	 * @param $db_set
+	 * @return Repository
+	 */
+	public function get_db_set($db_set) {
+		return $this->$db_set;
+	}
+
+	/**
+	 * @return bool|mysqli_result
+	 * @throws Exception
+	 */
 	public function create_database() {
 		return $this->mysql->query('CREATE DATABASE IF NOT EXISTS '.$this->get_db_name());
 	}
 
+	/**
+	 * @param bool $for_include
+	 * @return string
+	 * @throws Exception
+	 */
 	public function get_db_name($for_include = true) {
 		$external_conf = External_confs::create();
 		$name = '';
