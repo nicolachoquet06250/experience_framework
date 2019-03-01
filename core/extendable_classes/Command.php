@@ -37,12 +37,16 @@ class Command extends Base implements ICommand {
 		$controller = (is_null($args[0][0])) ? self::$default_command : $args[0][0];
 		$action = isset($args[0][1]) ? $args[0][1] : self::$default_action;
 		$args = self::clean_args($args);
-		if(is_file($external_confs->get_root_dir())) {
-			require_once $external_confs->get_root_dir().'/commands/'.$controller.'.php';
+		$namespace = '\\';
+		if(is_file($external_confs->get_commands_dir().'/'.$controller.'.php')) {
+			if (is_file($external_confs->get_commands_dir(false).'/'.$controller.'.php')) {
+				require_once $external_confs->get_commands_dir(false).'/'.$controller.'.php';
+			}
+			require_once $external_confs->get_commands_dir().'/'.$controller.'.php';
 			$namespace = '\\'.$external_confs->get_git_repo()['directory'];
 		}
-		else {
-			require_once $external_confs->get_root_dir(false).'/commands/'.$controller.'.php';
+		elseif (is_file($external_confs->get_commands_dir(false).'/'.$controller.'.php')) {
+			require_once $external_confs->get_commands_dir(false).'/'.$controller.'.php';
 			$namespace = '\\core';
 		}
 		$controller = $namespace.'\\'.$controller;

@@ -4,11 +4,9 @@
 namespace core;
 
 
-use custom\UserDao;
 use Exception;
 use Facebook\Authentication\AccessToken;
 use Facebook\Exceptions\FacebookSDKException;
-use MiladRahimi\Jwt\Claims\JWTClaims;
 use MiladRahimi\Jwt\Enums\PublicClaimNames;
 
 class AuthController extends Controller {

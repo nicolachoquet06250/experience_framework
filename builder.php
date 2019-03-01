@@ -1,6 +1,7 @@
 <?php
 
 use core\Command;
+use core\Base;
 
 require_once __DIR__.'/core/autoload.php';
 
@@ -15,7 +16,7 @@ try {
 		}
 	}
 	$argv = $t_arg;
-	(new \core\Base())->get_conf('trigger');
+	(new Base())->get_conf('trigger');
 	Command::create(
 		Command::clean_args($argv)
 	);
