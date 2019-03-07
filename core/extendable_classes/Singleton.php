@@ -6,7 +6,7 @@ namespace core;
 trait Singleton {
 	private static $instance = null;
 
-	private function __construct() {}
+	protected function __construct() {}
 
 	/** @return $this */
 	public static function create() {

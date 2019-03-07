@@ -4,6 +4,7 @@ namespace core;
 
 
 class TriggerConf extends Conf {
+	use FactisSingleton;
 	const BeforeSendEmail = 'BeforeSendEmail';
 	const AfterSendEmail = 'AfterSendEmail';
 

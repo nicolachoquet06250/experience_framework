@@ -4,15 +4,12 @@
 namespace core;
 
 
-use custom\UserDao;
-use custom\UserEntity;
 use Exception;
 use Facebook\Authentication\AccessToken;
 use Facebook\Authentication\OAuth2Client;
 use Facebook\Exceptions\FacebookSDKException;
 use Facebook\Facebook;
 use Facebook\FacebookResponse;
-use Facebook\GraphNodes\GraphUser;
 use Facebook\Helpers\FacebookCanvasHelper;
 use Facebook\Helpers\FacebookJavaScriptHelper;
 use Facebook\Helpers\FacebookPageTabHelper;
@@ -24,6 +21,7 @@ class FacebookService extends Service implements IFacebookService {
 	protected $permissions = [];
 	protected $app_id;
 	protected $secret;
+	protected $user_table_name = 'user';
 
 	const REDIRECT_LOGIN = 'RedirectLogin';
 	const JAVASCRIPT	 = 'JavaScript';
@@ -45,6 +43,8 @@ class FacebookService extends Service implements IFacebookService {
 	const ERROR_DESCRIPTION = 'error_description';
 
 	public static $FB_SESSION_PREFIX = 'FBRLH_';
+	/** @var null|Entity $connected_user */
+	protected static $connected_user = null;
 
 	protected static $fb_storage_key = 'fb_access_token';
 
@@ -207,21 +207,24 @@ class FacebookService extends Service implements IFacebookService {
 	 * @throws Exception
 	 */
 	public function get_user($access_token, $fields = []) {
+		if(self::$connected_user) {
+			return self::$connected_user->toArrayForJson();
+		}
 		$user = $this->get_response_for_me($access_token, $fields)->getGraphUser();
 		$user = (array)$user;
 		$user = array_values($user)[0];
-		/** @var UserDao $userDao */
-		$userDao = $this->get_dao('user');
+		$userDao = $this->get_dao($this->user_table_name);
 		$_user = $userDao->getBy('email', $user['email']);
 		if($_user) {
-			/** @var UserEntity $_user */
+			/** @var Entity $_user */
 			$_user = $_user[0];
 			if(!$_user->get('fb_id')) {
 				$_user->set('fb_id', $user['id']);
 				$_user->save();
 			}
 		}
-		return $_user;
+		self::$connected_user = $_user;
+		return $_user->toArrayForJson();
 	}
 
 	/**
@@ -305,7 +308,7 @@ class FacebookService extends Service implements IFacebookService {
 	}
 
 	public function get_role() {
-		return 'user';
+		return self::$connected_user ? self::$connected_user->get('role')->get('role') : null;
 	}
 
 	public function has_access_to($access_id) {

@@ -3,10 +3,9 @@
 namespace core;
 
 use Exception;
+use mvc_framework\core\queues\ModuleLoader;
 
 class Base implements IBase {
-	private static $confs = [];
-
 	private static $queues_loader;
 
 	public static $authentication_key = 'tresterrzegdghgdfdshdfhfshfshfs';
@@ -176,25 +175,19 @@ class Base implements IBase {
 		$external_conf = External_confs::create();
 		$conf = ucfirst($conf).'Conf';
 		if(file_exists($external_conf->get_conf_dir().'/'.$conf.'.php')) {
-			if(!isset(self::$confs[$conf])) {
-				if(is_file($external_conf->get_conf_dir(false).'/'.$conf.'.php')) {
-					require_once $external_conf->get_conf_dir(false).'/'.$conf.'.php';
-				}
-				require_once $external_conf->get_conf_dir().'/'.$conf.'.php';
-				$namespace = '\\'.$external_conf->get_git_repo()['directory'];
-				$conf = $namespace.'\\'.$conf;
-				self::$confs[$conf] = new $conf();
+			if(is_file($external_conf->get_conf_dir(false).'/'.$conf.'.php')) {
+				require_once $external_conf->get_conf_dir(false).'/'.$conf.'.php';
 			}
-			return self::$confs[$conf];
+			require_once $external_conf->get_conf_dir().'/'.$conf.'.php';
+			$namespace = '\\'.$external_conf->get_git_repo()['directory'];
+			$conf = $namespace.'\\'.$conf;
+			return $conf::create();
 		}
 		elseif(file_exists($external_conf->get_conf_dir(false).'/'.$conf.'.php')) {
-			if(!isset(self::$confs[$conf])) {
-				require_once $external_conf->get_conf_dir(false).'/'.$conf.'.php';
-				$namespace = '\\core';
-				$conf = $namespace.'\\'.$conf;
-				self::$confs[$conf] = new $conf();
-			}
-			return self::$confs[$conf];
+			require_once $external_conf->get_conf_dir(false).'/'.$conf.'.php';
+			$namespace = '\\core';
+			$conf = $namespace.'\\'.$conf;
+			return $conf::create();
 		}
 		throw new Exception('\'La classe '.$conf.' n\'existe pas !');
 	}
@@ -218,11 +211,11 @@ class Base implements IBase {
 	 * @throws Exception
 	 */
 	public function queues_loader() {
-		if(!class_exists(\mvc_framework\core\queues\ModuleLoader::class)) {
+		if(!class_exists(ModuleLoader::class)) {
 			throw new Exception('plugin `queues` not found');
 		}
 		if(is_null(self::$queues_loader)) {
-			self::$queues_loader = new \mvc_framework\core\queues\ModuleLoader();
+			self::$queues_loader = new ModuleLoader();
 		}
 		return self::$queues_loader;
 	}

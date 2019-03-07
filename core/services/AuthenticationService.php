@@ -6,13 +6,11 @@ namespace core;
 
 
 use Closure;
-use custom\UserDao;
 use Exception;
 use MiladRahimi\Jwt\Authentication\Authentication;
 use MiladRahimi\Jwt\Authentication\Subdomains;
 use MiladRahimi\Jwt\Claims\JWTClaims;
 use MiladRahimi\Jwt\Enums\PublicClaimNames;
-use MiladRahimi\Jwt\JwtParser;
 
 class AuthenticationService extends Service implements IAuthenticationService {
 
@@ -33,10 +31,12 @@ class AuthenticationService extends Service implements IAuthenticationService {
 	protected $error_code = 0;
 	protected $error_reason = null;
 	protected $error_description = '';
+	protected $user_table_name = 'user';
 
 	protected $permissions = [];
 
 	public static $EXP_FRM_SESSION_PREFIX = 'EXP_FRM_';
+	protected static $connected_user = null;
 
 	protected static $exp_frm_storage_key = 'access_token';
 
@@ -242,7 +242,7 @@ class AuthenticationService extends Service implements IAuthenticationService {
 			$claims = JWTClaims::create()->get();
 		}
 		$user_id = $claims[PublicClaimNames::ID];
-		$userDao = $this->get_dao('user');
+		$userDao = $this->get_dao($this->user_table_name);
 		$me = $userDao->getById($user_id)->toArrayForJson();
 		$_me = [];
 		foreach ($fields as $field) {
@@ -260,7 +260,12 @@ class AuthenticationService extends Service implements IAuthenticationService {
 	 * @throws Exception
 	 */
 	public function get_user($access_token, $fields = []) {
-		return $this->get_response_for_me($access_token, $fields);
+		if(self::$connected_user) {
+			return self::$connected_user;
+		}
+		$user = $this->get_response_for_me($access_token, $fields);
+		self::$connected_user = $user;
+		return $user;
 	}
 
 	public function access_token_exists() {

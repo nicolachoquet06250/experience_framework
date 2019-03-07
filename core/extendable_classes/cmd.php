@@ -24,7 +24,15 @@ class cmd extends Base implements ICmd {
 	}
 
 	protected function get_arg($key) {
-		return isset($this->args[$key]) ? $this->args[$key] : null;
+		$arg = isset($this->args[$key]) ? $this->args[$key] : null;
+		if(ctype_digit($arg)) {
+			return intval($arg);
+		}
+		if($arg === 'true' || $arg === 'false') {
+			return $arg === 'true' ? true : false;
+		}
+		return $arg;
+
 	}
 
 	protected function clean_args() {

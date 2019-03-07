@@ -12,6 +12,7 @@ use ReflectionException;
 class DbContext extends Base {
 	protected $db_sets = [];
 	protected $database_name = '';
+	protected $db_name = '';
 	protected $prefix;
 	/** @var mysqli $mysql */
 	protected $mysql;
@@ -24,14 +25,17 @@ class DbContext extends Base {
 	 * @throws Exception
 	 */
 	public function __construct($prefix = '') {
+		$external_conf = External_confs::create();
 		$this->active_depencency_injection();
 		$this->prefix = $prefix;
+		$this->db_name = strtolower(str_replace(['core\\', $external_conf->get_git_repo()['directory'].'\\', 'Context'], '', get_class($this)));
 		DependenciesInjection::start(DependenciesInjection::CONTEXT, $this);
 
 		$this->init_database_name();
 		$this->init_db_sets();
 		/** @var MysqlService $mysql_service */
 		$mysql_service = $this->get_service('mysql');
+		$mysql_service->change_db($this->db_name);
 		$this->mysql = $mysql_service->get_connector();
 	}
 
@@ -48,6 +52,14 @@ class DbContext extends Base {
 				}
 			}
 		}
+	}
+
+	/**
+	 * @param $prefix
+	 * @throws Exception
+	 */
+	protected function set_table_prefix($prefix) {
+		$this->get_conf('mysql')->set('table-prefix', $prefix, false);
 	}
 
 	/**
@@ -104,7 +116,6 @@ class DbContext extends Base {
 	 * @throws Exception
 	 */
 	public function get_db_name($for_include = true) {
-		$external_conf = External_confs::create();
 		$name = '';
 		if($for_include) {
 			$name .= '`';
@@ -114,7 +125,7 @@ class DbContext extends Base {
 			$name .= $this->prefix.'_';
 		}
 
-		$name .= strtolower(str_replace(['core\\', $external_conf->get_git_repo()['directory'].'\\', 'Context'], '', get_class($this)));
+		$name .= $this->db_name;
 
 		if($for_include) {
 			$name .= '`';

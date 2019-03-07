@@ -11,6 +11,7 @@ class Repository extends Base implements IRepository {
 	protected $table_name;
 	private $result = [];
 	protected $mysql_conf;
+	protected $prefix;
 
 	/**
 	 * Repository constructor.
@@ -35,11 +36,28 @@ class Repository extends Base implements IRepository {
 	}
 
 	/**
+	 * @param $prefix
+	 * @throws Exception
+	 */
+	public function set_prefix($prefix) {
+		$this->mysql_conf->set('table-prefix', $prefix, false);
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function rm_prefix() {
+		$this->mysql_conf->remove_property('table-prefix', true, false);
+	}
+
+	/**
 	 * @return Entity
 	 * @throws Exception
 	 */
 	public function entity() {
-		return $this->get_entity($this->table_name);
+		$entity = $this->get_entity($this->table_name);
+
+		return $entity;
 	}
 
 	/**

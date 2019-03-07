@@ -5,6 +5,7 @@ use core\Helpers;
 require_once __DIR__.'/interfaces/IBase.php';
 require_once __DIR__.'/Base.php';
 
+require_once __DIR__.'/FactisSingleton.php';
 require_once __DIR__.'/Singleton.php';
 require_once __DIR__.'/Helpers.php';
 

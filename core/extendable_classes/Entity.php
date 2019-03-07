@@ -281,7 +281,7 @@ class Entity extends Base implements IEntity {
 
 	/**
 	 * @param $prop
-	 * @return null
+	 * @return mixed|Entity
 	 */
 	public function get($prop) {
 		foreach ($this->fields as $field => $details) {

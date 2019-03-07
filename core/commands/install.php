@@ -8,6 +8,7 @@ class install extends cmd {
 	private $htaccess = "Options +FollowSymlinks
 RewriteEngine On
 
+RewriteRule ^$                                            core/index.php?controller=
 RewriteRule ^external_confs/*$                            core/index.php
 RewriteRule ^git_dependencies/*$                          core/index.php
 RewriteRule ^vendor/*$                                    core/index.php
@@ -24,7 +25,10 @@ RewriteRule ^([a-zA-Z0-9\_\/]+\.jpg|jpeg|png|gif|svg)$    core/index.php?image=$
 			$prefix = $this->get_arg('prefix');
 			$this->get_conf('mysql')->set('table-prefix', $prefix, false);
 		}
-		$install_service->test_databases();
+		if($install_service->test_databases()) {
+			return 'L\'installation de la base de donnée s\'est effectuée avec succes !!';
+		}
+		return '';
 	}
 
 	/**
@@ -149,6 +153,27 @@ RewriteRule ^([a-zA-Z0-9\_\/]+\.jpg|jpeg|png|gif|svg)$    core/index.php?image=$
 		}
 		if(!is_dir(__DIR__.'/../../logs')) {
 			mkdir(__DIR__.'/../../logs', 0777, true);
+		}
+	}
+
+	public function custom_repository(OsService $osService) {
+		if($this->has_arg('exists') && (is_int($this->get_arg('exists')) || is_bool($this->get_arg('exists'))) && $this->get_arg('exists')) {
+			if($this->has_arg('repository') && $this->has_arg('directory')) {
+				$directory = $this->get_arg('directory');
+				$repository = $this->get_arg('repository');
+				exec($osService->git_path().' clone '.$repository.' '.__ROOT__.'/'.$directory);
+			}
+		}
+		else {
+			if($this->has_arg('directory')) {
+				$directory = $this->get_arg('directory');
+				$repository = $this->get_arg('repository');
+				$commit_message = $this->has_arg('message') ? $this->get_arg('message') : 'initialize custom repo with experience_framework commands';
+				exec('cd '.__ROOT__.'/'.$directory.
+					 ' && git init && git remote add origin '.$repository.
+					 ' && git pull origin master && git add . && git commit -m"'.$commit_message
+					 .'" && git push origin master');
+			}
 		}
 	}
 }
